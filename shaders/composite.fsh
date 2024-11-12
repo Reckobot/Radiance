@@ -7,6 +7,7 @@
 #define FogDensity 10 //[0 1 2 3 4 5 6 7 8 9 10]
 #define HighQualityShadows true //[true false]
 #define ShadowSoftness 0.25 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0]
+#define ShadowBias 0.0005
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -78,7 +79,7 @@ vec3 getSoftShadow(vec4 shadowClipPos){
 		for (float y = -range; y <= range; y+= increment){
 			vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
 			vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0);
-      		offsetShadowClipPos.z -= 0.0003;
+      		offsetShadowClipPos.z -= ShadowBias;
       		offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz);
       		vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w;
       		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
@@ -128,7 +129,7 @@ void main() {
 		shadow = getSoftShadow(shadowClipPos);
 	}
 	else{
-		shadowClipPos.z -= 0.0003; // bias
+		shadowClipPos.z -= ShadowBias; // bias
 		shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
 		vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
