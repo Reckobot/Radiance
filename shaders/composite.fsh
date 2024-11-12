@@ -2,9 +2,11 @@
 #include /lib/distort.glsl
 #include /lib/color.glsl
 
-#define Ambient 0.25 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0 1.125 1.25 1.375 1.5 1.625 1.75 1.875 2.0]
-#define SunBrightness 1.0 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0 1.125 1.25 1.375 1.5 1.625 1.75 1.875 2.0]
+#define Ambient 0.25 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define SunBrightness 1.0 //[0.0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0]
 #define FogDensity 10 //[0 1 2 3 4 5 6 7 8 9 10]
+#define HighQualityShadows true //[true false]
+#define ShadowSoftness 0.25 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0]
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -58,7 +60,7 @@ vec4 getNoise(vec2 coord){
 }
 
 vec3 getSoftShadow(vec4 shadowClipPos){
-	const float range = 0.25;
+	const float range = ShadowSoftness;
 	const float increment = 0.5;
 
 	float noise = getNoise(texcoord).r;
@@ -121,11 +123,17 @@ void main() {
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
-	//shadowClipPos.z -= 0.0003; // bias
-	//shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
-	//vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
-	//vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
-	vec3 shadow = getSoftShadow(shadowClipPos);
+	vec3 shadow;
+	if (HighQualityShadows == true){
+		shadow = getSoftShadow(shadowClipPos);
+	}
+	else{
+		shadowClipPos.z -= 0.0003; // bias
+		shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
+		vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
+		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
+		shadow = getShadow(shadowScreenPos);
+	}
 	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 1.0) * lightmap.g)*shadow;
 
 	int shininess = 2;

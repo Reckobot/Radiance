@@ -1,7 +1,9 @@
 #define ShadowResolution 4096 //[128 256 512 1024 2048 4096 8192 16384]
+#define ShadowDistance 200 //[50 100 200 300 400 500 600]
+#define HardwareFiltering true //[true false]
 const int shadowMapResolution = ShadowResolution;
-const float shadowDistance = 200.0;
-const bool shadowHardwareFiltering = true;
+const float shadowDistance = ShadowDistance;
+const bool shadowHardwareFiltering = HardwareFiltering;
 #define SHADOW_QUALITY 2
 #define SHADOW_SOFTNESS 1
 
