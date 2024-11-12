@@ -1,42 +1,29 @@
-#version 120
+#version 330 compatibility
 
-#include "lib/shadow_param.glsl"
+uniform sampler2D lightmap;
+uniform sampler2D gtexture;
 
-varying vec4 lmtexcoord;
-varying vec4 color;
-varying vec4 shadowPos;
+uniform float alphaTestRef = 0.1;
 
-uniform sampler2D texture;
-uniform sampler2D gaux1;
-uniform sampler2DShadow shadow;
+in vec2 lmcoord;
+in vec2 texcoord;
+in vec4 glcolor;
+in vec3 normal;
 
-uniform vec4 lightCol;
-uniform vec2 texelSize;
+/* RENDERTARGETS: 0,1,2 */
+layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 lightmapData;
+layout(location = 2) out vec4 encodedNormal;
 
-//faster and actually more precise than pow 2.2
-vec3 toLinear(vec3 sRGB){
-	return sRGB * (sRGB * (sRGB * 0.305306011 + 0.682171111) + 0.012522878);
-}
-
-/* DRAWBUFFERS:1 */
 void main() {
-	gl_FragData[0] = texture2D(texture, lmtexcoord.xy)*color;
-	if (gl_FragData[0].a > 0.0 ) {
-		vec3 albedo = toLinear(gl_FragData[0].rgb);
-		float diffuseSun = shadowPos.w/255.;
-		if (diffuseSun > 0.0001 && shadowPos.x < 1e10) {
-			float distort = calcDistort(shadowPos.xy);
-			vec2 spCoord = shadowPos.xy / distort;
-			if (abs(spCoord.x) < 1.0-1.5/shadowMapResolution && abs(spCoord.y) < 1.0-1.5/shadowMapResolution) {
-					float diffthresh = 0.0004*512./shadowMapResolution*shadowDistance/45.*distort/diffuseSun;
-
-					vec3 projectedShadowPosition = vec3(spCoord, shadowPos.z) * vec3(0.5,0.5,0.5/3.0) + vec3(0.5,0.5,0.5-diffthresh);
-					diffuseSun *= shadow2D(shadow, projectedShadowPosition).x;
-			}
-		}
-		vec3 lightmap = texture2D(gaux1,lmtexcoord.zw*texelSize).xyz;
-		vec3 diffuseLight = lightCol.rgb*diffuseSun + lightmap;
-
-		gl_FragData[0].rgb = diffuseLight*albedo;
+	color = texture(gtexture, texcoord) * glcolor;
+	color *= texture(lightmap, lmcoord);
+	if (color.a < alphaTestRef) {
+		discard;
 	}
+
+	lightmapData = vec4(lmcoord, 0.0, 1.0);
+	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
+
+	color.rgb = pow(color.rgb, vec3(2.2));
 }

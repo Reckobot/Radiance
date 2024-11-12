@@ -1,17 +1,16 @@
-#version 120
+#version 330 compatibility
+#include /lib/distort.glsl
 
+uniform sampler2D gtexture;
 
-varying vec2 texcoord;
+in vec2 texcoord;
+in vec4 glcolor;
 
-uniform sampler2D tex;
-
-//////////////////////////////VOID MAIN//////////////////////////////
-//////////////////////////////VOID MAIN//////////////////////////////
-//////////////////////////////VOID MAIN//////////////////////////////
-//////////////////////////////VOID MAIN//////////////////////////////
-//////////////////////////////VOID MAIN//////////////////////////////
+layout(location = 0) out vec4 color;
 
 void main() {
-
-	gl_FragData[0] = texture2D(tex,texcoord.xy);
+	color = texture(gtexture, texcoord) * glcolor;
+	if(color.a < 0.1){
+		discard;
+	}
 }

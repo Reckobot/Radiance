@@ -1,43 +1,43 @@
-#version 120
-#extension GL_EXT_gpu_shader4 : enable
-/* DRAWBUFFERS:1 */
+#version 330 compatibility
+#include /lib/color.glsl
 
-flat varying vec4 sunVec;
-
+uniform int renderStage;
+uniform float viewHeight;
+uniform float viewWidth;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
 
-uniform sampler2D noisetex;
-uniform sampler2D gaux1;
+uniform vec3 fogColor;
+vec3 defFog = fogColor;
+vec3 fog = vec3(1.75,1.25,1)/2;
+uniform vec3 skyColor;
+vec3 defSky = saturation(skyColor, 2);
 
+in vec4 glcolor;
 
-uniform vec2 texelSize;
-
-
-#include "lib/color_transforms.glsl"
-#include "lib/sky_gradient.glsl"
-#include "lib/color_dither.glsl"
-#include "lib/color_functions.glsl"
-
-vec4 iProjDiag = vec4(gbufferProjectionInverse[0].x, gbufferProjectionInverse[1].y, gbufferProjectionInverse[2].zw);
-vec3 toScreenSpaceVector(vec3 p) {
-    vec3 p3 = p * 2. - 1.;
-    vec4 fragposition = iProjDiag * p3.xyzz + gbufferProjectionInverse[3];
-    return normalize(fragposition.xyz);
+float fogify(float x, float w) {
+	return w / (x * x + w);
 }
 
+vec3 calcSkyColor(vec3 pos) {
+	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
+	return mix(defSky, fogColor*fog, fogify(max(upDot, 0.0), 0.25));
+}
 
+vec3 screenToView(vec3 screenPos) {
+	vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
+	vec4 tmp = gbufferProjectionInverse * ndcPos;
+	return tmp.xyz / tmp.w;
+}
 
+/* RENDERTARGETS: 0 */
+layout(location = 0) out vec4 color;
 
 void main() {
-	vec3 fragpos = toScreenSpaceVector(vec3(gl_FragCoord.xy*texelSize,1.));
-	fragpos = mat3(gbufferModelViewInverse) * fragpos;
-
-
-	vec3 color = getSkyColorLut(fragpos,sunVec.xyz,fragpos.y,gaux1);
-
-	gl_FragData[0] = vec4(color*sunVec.w,1.0);
-	gl_FragData[0].rgb = fp10Dither(gl_FragData[0].rgb);
-	gl_FragData[0].rgb *= 4;
-	gl_FragData[0].rgb = saturation(gl_FragData[0].rgb, 0.75);
+	if (renderStage == MC_RENDER_STAGE_STARS) {
+		color = glcolor;
+	} else {
+		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+		color = vec4(calcSkyColor(normalize(pos)), 1.0);
+	}
 }

@@ -1,4 +1,5 @@
 #version 330 compatibility
+#include /lib/color.glsl
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
