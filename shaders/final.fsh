@@ -6,6 +6,8 @@
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex3;
+uniform float viewWidth;
+uniform float viewHeight;
 
 in vec2 texcoord;
 
@@ -18,15 +20,4 @@ void main() {
 	color.rgb = pow(color.rgb, vec3(1.0/2.2));
 
 	color.rgb = (saturation(color.rgb, Saturation))*Brightness;
-
-	//bloom bright colors
-	brightcolor = vec4(0,0,0,0);
-	brightcolor = vec4(0,0,0,0);
-	vec3 hsvcolor = rgb2hsv(color.rgb);
-	if (hsvcolor.z > 0.6){
-		brightcolor = color;
-	}
-	else{
-		brightcolor = vec4(0,0,0,0);
-	}
 }

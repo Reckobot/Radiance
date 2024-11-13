@@ -12,6 +12,7 @@
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex3;
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -91,8 +92,9 @@ vec3 getSoftShadow(vec4 shadowClipPos){
   	return shadowAccum / float(samples);
 }
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,3 */
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 brightcolor;
 
 const vec3 blocklightColor = vec3(1,1,1);
 const vec3 skylightColor = vec3(1,1,1);
@@ -153,8 +155,19 @@ void main() {
 
 	//fog
 	if (FogDensity > 0){
-		float dist = length(viewPos) / far;
+		float dist = length(viewPos) / (far*1.25);
 		float fogFactor = exp(-FogDensity * (1.0 - dist));
-		color.rgb = mix(color.rgb, (vec3(1,1,1)/1.5)*(lightness), clamp(fogFactor, 0.0, 1.0));
+		color.rgb = mix(color.rgb, (vec3(1.75,1.25,1)/2)*(lightness), clamp(fogFactor, 0.0, 0.25));
+	}
+
+	//bloom prep
+	brightcolor = vec4(0,0,0,0);
+	brightcolor = vec4(0,0,0,0);
+	vec3 hsvcolor = rgb2hsv(color.rgb);
+	if (hsvcolor.z > 0.5){
+		brightcolor = color;
+	}
+	else{
+		brightcolor = vec4(0,0,0,0);
 	}
 }
