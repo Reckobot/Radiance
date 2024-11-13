@@ -1,5 +1,5 @@
 #version 330 compatibility
-#include /lib/distort.glsl
+#include "/lib/distort.glsl"
 
 out vec2 texcoord;
 out vec4 glcolor;

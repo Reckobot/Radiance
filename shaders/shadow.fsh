@@ -1,5 +1,5 @@
 #version 330 compatibility
-#include /lib/distort.glsl
+#include "/lib/distort.glsl"
 
 uniform sampler2D gtexture;
 

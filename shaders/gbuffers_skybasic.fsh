@@ -1,5 +1,5 @@
 #version 330 compatibility
-#include /lib/color.glsl
+#include "/lib/color.glsl"
 
 uniform int renderStage;
 uniform float viewHeight;
