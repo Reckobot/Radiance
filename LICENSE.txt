@@ -16,7 +16,7 @@
 
 Copyright © Reckobot 2024
 
-If you did not get this shader from modrinth (or github)
+If you did not get this shader from modrinth or curseforge or github
 please contact me at "reckobot" on discord and
 tell me where you got it from so I can take care of it :)
 
