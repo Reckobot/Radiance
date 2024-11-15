@@ -1,13 +1,8 @@
 #version 330 compatibility
 #include "/lib/distort.glsl"
 #include "/lib/color.glsl"
-
-#define Ambient 0.25 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0 1.05 1.1 1.15 1.2 1.25 1.3 1.35 1.4 1.45 1.5 1.55 1.6 1.65 1.7 1.75 1.8 1.85 1.9 1.95 2.0]
-#define SunBrightness 1.0 //[0.0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0]
-#define FogDensity 10 //[0 1 2 3 4 5 6 7 8 9 10]
-#define HighQualityShadows
-#define ShadowSoftness 0.25 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0]
-#define ShadowBias 0.0005
+#include "/lib/dh.glsl"
+#include "/lib/settings.glsl"
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -24,6 +19,7 @@ uniform mat4 shadowProjection;
 uniform sampler2D depthtex0;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
+uniform sampler2D shadowtex2;
 uniform sampler2D shadowcolor0;
 uniform sampler2D noisetex;
 uniform vec3 playerLookVector;
@@ -117,9 +113,6 @@ void main() {
 	color = texture(colortex0, texcoord);
 
 	float depth = texture(depthtex0, texcoord).r;
-	if(depth == 1.0){
-		return;
-	}
 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
@@ -153,13 +146,6 @@ void main() {
 
 	color.rgb *= blocklight + ambient + sunlight;
 
-	//fog
-	if (FogDensity > 0){
-		float dist = length(viewPos) / (far*1.25);
-		float fogFactor = exp(-FogDensity * (1.0 - dist));
-		color.rgb = mix(color.rgb, (vec3(1.75,1.25,1)/2)*(lightness), clamp(fogFactor, 0.0, 0.25));
-	}
-
 	//bloom prep
 	brightcolor = vec4(0,0,0,0);
 	brightcolor = vec4(0,0,0,0);
@@ -170,4 +156,21 @@ void main() {
 	else{
 		brightcolor = vec4(0,0,0,0);
 	}
+
+	if(depth >= 1.0){
+		color = texture(colortex0, texcoord);
+		if (lightness < 0.15){
+			lightness = 0.15;
+		}
+		color.rgb *= lightness*2.75;
+	}
+
+	#ifndef DistantHorizons
+		//fog
+		if ((FogDensity > 0)&&(depth < 1)){
+			float dist = length(viewPos) / (far*1.25);
+			float fogFactor = exp(-FogDensity * (1.0 - dist));
+			color.rgb = mix(color.rgb, (vec3(1.75,1.25,1)/2)*(lightness), clamp(fogFactor, 0.0, 0.25));
+		}
+	#endif
 }

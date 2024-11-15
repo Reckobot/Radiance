@@ -25,5 +25,5 @@ void main() {
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
-	color.rgb = pow(color.rgb, vec3(2.2));
+	color.rgb = pow(color.rgb, vec3(2.5));
 }
