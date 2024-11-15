@@ -142,7 +142,7 @@ void main() {
 	int shininess = 2;
 	vec3 light = shadowLightPosition;
 	light.y = -light.y;
-	float spec = pow((max(0.0, dot(normalize(viewPos), normalize(reflect(light, normal))))), shininess)*4;
+	float spec = pow((max(0.0, dot(normalize(viewPos), normalize(reflect(light, normal))))), shininess)*3;
 	
 	sunlight = (sunlight + (sunlight*spec)) * SunBrightness;
 	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
