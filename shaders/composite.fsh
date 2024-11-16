@@ -132,19 +132,16 @@ void main() {
 	#endif
 	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 1.0) * lightmap.g)*shadow;
 
-	int shininess = 2;
+	float shininess = 1.5;
 	vec3 light = shadowLightPosition;
 	light.y = -light.y;
-	float spec = pow((max(0.0, dot(normalize(viewPos), normalize(reflect(light, normal))))), shininess)*3;
+	float spec = pow((max(0.0, dot(normalize(viewPos), normalize(reflect(light, normal))))), shininess)*4;
 	
 	sunlight = (sunlight + (sunlight*spec)) * SunBrightness;
 	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
 	float lightness = skyBrightness;
 	sunlight *= lightness;
 	ambient *= lightness;
-
-
-	color.rgb *= blocklight + ambient + sunlight;
 
 	//bloom prep
 	brightcolor = vec4(0,0,0,0);
@@ -163,6 +160,8 @@ void main() {
 			lightness = 0.15;
 		}
 		color.rgb *= lightness*2.75;
+	}else{
+		color.rgb *= blocklight + ambient + sunlight;
 	}
 
 	#ifndef DistantHorizons

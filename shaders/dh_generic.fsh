@@ -24,25 +24,5 @@ layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 
 void main() {
-	#ifdef DistantHorizons
-		float depth = texture(depthtex0, vec2(gl_FragCoord.xy)/vec2(viewWidth,viewHeight)).r;
-		if (depth < 1){
-			discard;
-		}
-		
-		color = texture(gtexture, texcoord) * glcolor;
-		color *= texture(lightmap, lmcoord);
-		if (color.a < alphaTestRef) {
-			discard;
-		}
-
-		lightmapData = vec4(lmcoord, 0.0, 1.0);
-		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
-
-		color.rgb = pow(color.rgb, vec3(2.75));
-		color.rgb = saturation(color.rgb, 0.95);
-		color.rgb *= SunBrightness*0.2;
-	#else
-		discard;
-	#endif
+	discard;
 }

@@ -40,8 +40,8 @@ void main() {
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 		color.rgb = pow(color.rgb, vec3(2.75));
-		color.rgb = saturation(color.rgb, 0.95);
-		color.rgb *= SunBrightness*0.75;
+		color.rgb *= SunBrightness*(Ambient*2);
+		color.rgb = saturation(color.rgb, 0.925);
 	#else
 		discard;
 	#endif
