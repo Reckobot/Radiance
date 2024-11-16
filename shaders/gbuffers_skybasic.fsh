@@ -12,7 +12,7 @@ uniform vec3 fogColor;
 vec3 defFog = fogColor;
 vec3 fog;
 uniform vec3 skyColor;
-vec3 defSky = (saturation(skyColor, 3.5))*1.5;
+vec3 defSky = (saturation(skyColor, 2.5))*1.5;
 
 in vec4 glcolor;
 
@@ -22,7 +22,7 @@ float fogify(float x, float w) {
 
 vec3 calcSkyColor(vec3 pos) {
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(defSky * (rgb2hsv(skyColor).z), fog * (rgb2hsv(skyColor).z), fogify(max(upDot+0.45, -1), 0.5));
+	return mix(defSky * (rgb2hsv(skyColor).z), fog * (rgb2hsv(skyColor).z), fogify(max(upDot+1, -1), 1));
 }
 
 vec3 screenToView(vec3 screenPos) {
@@ -44,6 +44,6 @@ void main() {
 		fog.rgb = saturation(fog.rgb, 1.5);
 		color = vec4(calcSkyColor(normalize(pos)), 1.0);
 		color.rgb = saturation(color.rgb, 0.75);
-		color.rgb *= 0.15;
+		color.rgb *= 0.175;
 	}
 }
