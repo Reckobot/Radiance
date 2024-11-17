@@ -12,7 +12,7 @@ uniform vec3 fogColor;
 vec3 defFog = fogColor;
 vec3 fog;
 uniform vec3 skyColor;
-vec3 defSky = (saturation(skyColor, 2.5))*1.5;
+vec3 defSky = (saturation(skyColor, 3))*1.5;
 
 in vec4 glcolor;
 
