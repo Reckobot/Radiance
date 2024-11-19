@@ -4,6 +4,7 @@
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
 
+uniform sampler2D specular;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -27,6 +28,7 @@ uniform vec3 skyColor;
 uniform float far;
 
 in vec2 texcoord;
+in vec3 viewnormal;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
   vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -111,6 +113,7 @@ void main() {
 	vec3 ambient = ambientColor * Ambient;
 
 	color = texture(colortex0, texcoord);
+	color = vec4(pow(color.rgb, vec3(2.2)), 1);
 
 	float depth = texture(depthtex0, texcoord).r;
 
@@ -132,10 +135,16 @@ void main() {
 	#endif
 	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 1.0) * lightmap.g)*shadow;
 
-	float shininess = 1.5;
-	vec3 light = shadowLightPosition;
-	light.y = -light.y;
-	float spec = pow((max(0.0, dot(normalize(viewPos), normalize(reflect(light, normal))))), shininess)*4;
+	float shininess = 32;
+	float specmult = 3;
+	#ifdef LabPBR
+		shininess = texture(specular, texcoord).r*128;
+		specmult = texture(specular, texcoord).r*6;
+	#endif
+	vec3 lightDir = worldLightVector;
+	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.5), shininess)*specmult;
 	
 	sunlight = (sunlight + (sunlight*spec)) * SunBrightness;
 	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
@@ -147,7 +156,7 @@ void main() {
 	brightcolor = vec4(0,0,0,0);
 	brightcolor = vec4(0,0,0,0);
 	vec3 hsvcolor = rgb2hsv(color.rgb);
-	if (hsvcolor.z > 0.5){
+	if (hsvcolor.z > 0.8){
 		brightcolor = color;
 	}
 	else{

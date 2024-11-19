@@ -18,6 +18,7 @@ void main() {
 	normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
 
 	vec3 tangent = gl_NormalMatrix * at_tangent.xyz;
+	tangent = mat3(gbufferModelViewInverse) * tangent;
 	vec3 bitangent = cross(tangent, normal);
 	tbnmatrix = mat3(tangent, bitangent, normal);
 }

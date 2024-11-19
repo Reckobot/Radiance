@@ -12,7 +12,7 @@ uniform vec3 fogColor;
 vec3 defFog = fogColor;
 vec3 fog;
 uniform vec3 skyColor;
-vec3 defSky = (saturation(skyColor, 3.75))*1.5;
+vec3 defSky = (saturation(skyColor, 4.5))*1.5;
 
 in vec4 glcolor;
 
@@ -40,7 +40,7 @@ void main() {
 	} else {
 		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
 		fog = vec3(1.75,1.25,1);
-		fog *= 2;
+		fog *= 3;
 		fog.rgb = saturation(fog.rgb, 3 - (rgb2hsv(defSky).z));
 		color = vec4(calcSkyColor(normalize(pos)), 1.0);
 		color.rgb = saturation(color.rgb, 0.75);

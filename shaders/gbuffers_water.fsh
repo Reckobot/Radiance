@@ -39,6 +39,4 @@ void main() {
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
-
-	color.rgb = pow(color.rgb, vec3(2.2));
 }
