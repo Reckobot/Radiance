@@ -1,6 +1,7 @@
 #version 330 compatibility
 #include "/lib/settings.glsl"
 
+uniform sampler2D depthtex0;
 uniform sampler2D normals;
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
@@ -33,7 +34,7 @@ void main() {
 	}
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
-	
+
 	#ifdef LabPBR
 		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
 	#else
