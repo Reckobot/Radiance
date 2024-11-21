@@ -40,4 +40,5 @@ void main() {
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
+	color.w *= 0.75;
 }
