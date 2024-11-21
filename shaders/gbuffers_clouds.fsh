@@ -34,9 +34,5 @@ void main() {
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 	
-	#ifdef LabPBR
-		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
-	#else
-		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
-	#endif
+	encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 }
