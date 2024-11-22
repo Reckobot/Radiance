@@ -23,42 +23,20 @@ vec3 saturation(vec3 color, float s)
     return hsv2rgb(hsvcolor);
 }
 
-mat4 saturationMatrix( float saturation )
+vec3 ContrastSaturationBrightness(vec3 color, float brt, float sat, float con)
 {
-    vec3 luminance = vec3( 0.3086, 0.6094, 0.0820 );
-    
-    float oneMinusSat = 1.0 - saturation;
-    
-    vec3 red = vec3( luminance.x * oneMinusSat );
-    red+= vec3( saturation, 0, 0 );
-    
-    vec3 green = vec3( luminance.y * oneMinusSat );
-    green += vec3( 0, saturation, 0 );
-    
-    vec3 blue = vec3( luminance.z * oneMinusSat );
-    blue += vec3( 0, 0, saturation );
-    
-    return mat4( red,     0,
-                 green,   0,
-                 blue,    0,
-                 0, 0, 0, 1 );
-}
-
-mat4 contrastMatrix( float contrast )
-{
-	float t = ( 1.0 - contrast ) / 2.0;
-    
-    return mat4( contrast, 0, 0, 0,
-                 0, contrast, 0, 0,
-                 0, 0, contrast, 0,
-                 t, t, t, 1 );
-
-}
-
-mat4 brightnessMatrix( float brightness )
-{
-    return mat4( 1, 0, 0, 0,
-                 0, 1, 0, 0,
-                 0, 0, 1, 0,
-                 brightness, brightness, brightness, 1 );
+	// Increase or decrease theese values to adjust r, g and b color channels seperately
+	const float AvgLumR = 0.5;
+	const float AvgLumG = 0.5;
+	const float AvgLumB = 0.5;
+	
+	const vec3 LumCoeff = vec3(0.2125, 0.7154, 0.0721);
+	
+	vec3 AvgLumin  = vec3(AvgLumR, AvgLumG, AvgLumB);
+	vec3 brtColor  = color * brt;
+	vec3 intensity = vec3(dot(brtColor, LumCoeff));
+	vec3 satColor  = mix(intensity, brtColor, sat);
+	vec3 conColor  = mix(AvgLumin, satColor, con);
+	
+	return conColor;
 }

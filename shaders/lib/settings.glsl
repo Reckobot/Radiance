@@ -4,4 +4,5 @@
 #define HighQualityShadows
 #define ShadowSoftness 1 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0]
 #define ShadowBias 0.0005
-//#define LabPBR
+#define FancyWater
+#define Material 3 //[1 2 3]

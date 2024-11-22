@@ -1,5 +1,6 @@
 #version 330 compatibility
 #include "/lib/settings.glsl"
+#include "/lib/color.glsl"
 
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
@@ -35,10 +36,22 @@ void main() {
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 
+#ifdef FancyWater
 	#ifdef LabPBR
 		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
 	color.w *= 0.75;
+	color.rgb *= 0.75;
+	color.rgb = saturation(color.rgb, 0.75);
+	color.rgb = pow(color.rgb, vec3(1));
+	
+	if (rgb2hsv(color.rgb).z > 0.45){
+		color.rgb *= 1.5;
+	}
+	if (rgb2hsv(color.rgb).z > 0.75){
+		color.rgb *= 1.25;
+	}
+#endif
 }

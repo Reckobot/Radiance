@@ -1,10 +1,12 @@
 #version 330 compatibility
 #include "/lib/settings.glsl"
+#include "/lib/color.glsl"
 
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
+uniform vec3 shadowLightPosition;
 
 uniform float alphaTestRef = 0.1;
 
@@ -35,7 +37,7 @@ void main() {
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 
-	#ifdef LabPBR
+	#if Material == 3
 		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);

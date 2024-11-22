@@ -137,9 +137,12 @@ void main() {
 
 	float shininess = 32;
 	float specmult = 3;
-	#ifdef LabPBR
+	#if Material == 3
 		shininess = texture(specular, texcoord).r*128;
 		specmult = texture(specular, texcoord).r*8;
+	#elif Material == 2
+		shininess = rgb2hsv(texture(colortex0, texcoord).rgb).z*128;
+		specmult = rgb2hsv(texture(colortex0, texcoord).rgb).z*6;
 	#endif
 	vec3 lightDir = worldLightVector;
 	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
