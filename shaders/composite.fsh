@@ -157,7 +157,6 @@ void main() {
 
 	//bloom prep
 	brightcolor = vec4(0,0,0,0);
-	brightcolor = vec4(0,0,0,0);
 	vec3 hsvcolor = rgb2hsv(color.rgb);
 	if (hsvcolor.z > 0.8){
 		brightcolor = color;
