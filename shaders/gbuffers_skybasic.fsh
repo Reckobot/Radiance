@@ -39,9 +39,9 @@ void main() {
 		color = glcolor;
 	} else {
 		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-		fog = vec3(1.75,1.25,1);
+		fog = vec3(1.75,1.35,1);
 		fog *= 4;
-		fog.rgb = saturation(fog.rgb, 3.5 - (rgb2hsv(defSky).z));
+		fog.rgb = saturation(fog.rgb, 3.75 - (rgb2hsv(defSky).z));
 		color = vec4(calcSkyColor(normalize(pos)), 1.0);
 		color.rgb = saturation(color.rgb, 0.75);
 		color.rgb *= 0.25;
