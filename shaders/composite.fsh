@@ -100,6 +100,7 @@ const vec3 blocklightColor = vec3(1,1,1);
 const vec3 skylightColor = vec3(1,1,1);
 const vec3 sunlightColor = vec3(2,1.5,1);
 const vec3 ambientColor = vec3(1,1.5,2);
+const float sunPathRotation = SunRotation;
 
 void main() {
 
