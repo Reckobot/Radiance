@@ -3,6 +3,7 @@
 #include "/lib/color.glsl"
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
+#include "/lib/bloom.glsl"
 
 uniform sampler2D specular;
 uniform sampler2D colortex0;
@@ -158,7 +159,7 @@ void main() {
 	//bloom prep
 	brightcolor = vec4(0,0,0,0);
 	vec3 hsvcolor = rgb2hsv(color.rgb);
-	if (hsvcolor.z > 0.8){
+	if (hsvcolor.z >= BloomThreshold){
 		brightcolor = color;
 	}
 	else{
