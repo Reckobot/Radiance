@@ -4,6 +4,7 @@
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/bloom.glsl"
+#include "/lib/tonemap.glsl"
 
 uniform sampler2D specular;
 uniform sampler2D colortex0;
@@ -114,7 +115,9 @@ void main() {
 	vec3 ambient = ambientColor * Ambient;
 
 	color = texture(colortex0, texcoord);
-	color = vec4(pow(color.rgb, vec3(2.2)), 1);
+	color.rgb = aces(color.rgb);
+	color = vec4(pow(color.rgb, vec3(3)), 1);
+	color.rgb *= 1.5;
 
 	float depth = texture(depthtex0, texcoord).r;
 
@@ -134,13 +137,13 @@ void main() {
 		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 		shadow = getShadow(shadowScreenPos);
 	#endif
-	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 1.0) * lightmap.g)*shadow;
+	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g)*shadow;
 
 	float shininess = 32;
 	float specmult = 3;
 	#if Material == 3
 		shininess = texture(specular, texcoord).r*128;
-		specmult = texture(specular, texcoord).r*8;
+		specmult = texture(specular, texcoord).r*4;
 	#elif Material == 2
 		shininess = rgb2hsv(texture(colortex0, texcoord).rgb).z*128;
 		specmult = rgb2hsv(texture(colortex0, texcoord).rgb).z*6;
