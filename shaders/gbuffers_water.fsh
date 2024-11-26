@@ -43,7 +43,7 @@ void main() {
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
 	color.rgb *= 0.75;
-	color.rgb = saturation(color.rgb, 0.9);
+	color.rgb = saturation(color.rgb, 0.8);
 	color.rgb = pow(color.rgb, vec3(1));
 	
 	if (rgb2hsv(color.rgb).z > 0.45){
@@ -52,6 +52,6 @@ void main() {
 	if (rgb2hsv(color.rgb).z > 0.65){
 		color.rgb *= 1.25;
 	}
-	color.rgb *= 1.25;
+	color.rgb *= 1.0;
 #endif
 }

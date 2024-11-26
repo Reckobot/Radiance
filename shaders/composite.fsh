@@ -11,8 +11,12 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
+uniform sampler2D colortex8;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform int biome_precipitation;
+uniform float frameTime;
+uniform float rainStrength;
 
 uniform vec3 shadowLightPosition;
 uniform mat4 gbufferModelViewInverse;
@@ -28,6 +32,7 @@ uniform sampler2D noisetex;
 uniform vec3 playerLookVector;
 uniform vec3 skyColor;
 uniform float far;
+uniform vec3 cameraPosition;
 
 in vec2 texcoord;
 in vec3 viewnormal;
@@ -102,6 +107,20 @@ const vec3 sunlightColor = vec3(2,1.5,1);
 const vec3 ambientColor = vec3(1,1.5,2);
 const float sunPathRotation = SunRotation;
 
+float cloudlayer(vec3 pos, int steps, float viewdist, float size){
+	float value = 1/(steps*0.75);
+	vec2 coords = pos.xz/vec2(size, size);
+	value *= texture(colortex8, coords).r;
+	return value;
+}
+
+float foglayer(vec3 pos, int steps, float alpha, float viewdist, float size){
+	float value = 1/(steps*0.75);
+	vec2 coords = (pos.xz*vec2(1,2))/vec2(size, size);
+	value *= texture(noisetex, coords).r*alpha;
+	return value;
+}
+
 void main() {
 
 	vec3 lightVector = normalize(shadowLightPosition);
@@ -116,14 +135,15 @@ void main() {
 	vec3 ambient = ambientColor * Ambient;
 
 	color = texture(colortex0, texcoord);
-	color.rgb = aces(color.rgb);
-	color = vec4(pow(color.rgb, vec3(3)), 1);
-	color.rgb *= 1.5;
+	color = vec4(pow(color.rgb, vec3(2.2)), 1);
 
 	float depth = texture(depthtex0, texcoord).r;
 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 camPos = projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0));
+	vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1)).xyz + cameraPosition;
+	vec3 worldcamPos = (gbufferModelViewInverse * vec4(camPos, 1)).xyz + cameraPosition;
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
@@ -180,12 +200,63 @@ void main() {
 		color.rgb *= blocklight + ambient + sunlight;
 	}
 
+	vec3 fogcolor = vec3(1.75,1.35,1);
+
 	#ifndef DistantHorizons
 		//fog
 		if ((FogDensity > 0)&&(depth < 1)){
-			float dist = length(viewPos) / (far*1.25);
+			float dist = length(viewPos) / (far*0.5);
 			float fogFactor = exp(-FogDensity * (1.0 - dist));
-			color.rgb = mix(color.rgb, (vec3(1.75,1.25,1)/2)*(lightness), clamp(fogFactor, 0.0, 0.25));
+			color.rgb = mix(color.rgb, saturation(fogcolor, 1.0)*(lightness), clamp(fogFactor, 0.0, 0.1));
 		}
+	#endif
+
+
+
+////////////////////////////////////////////////
+
+
+	int steps;
+	vec3 origin;
+	vec3 pos;
+	vec3 dir;
+	float fogOpacity;
+	float t;
+	int e;
+
+	//fancy fog
+	#ifdef FancyFog
+
+
+	steps = 300;
+	origin = (mat3(gbufferModelViewInverse) * -projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0)) + cameraPosition;
+	pos = origin;
+	dir = -viewDir;
+
+	fogOpacity = FogOpacity;
+
+	t = 0.0;
+	e = 0;
+	for (int i = 0; i < steps; i++){
+		pos += dir*1;
+		float clouddist = distance(origin, pos);
+		float gridsize = 10000;
+		float thickness = gridsize/500;
+		float fogbottom = 50;
+		int layercount = 1;
+		if ((clouddist >= 50)&&(depth < 1)){
+			float viewdist = distance(worldPos, worldcamPos);
+			for (int e = 0; e < layercount*10; e=e+2){
+				if ((pos.y <= (fogbottom+thickness)+e)&&(pos.y >= fogbottom+e)){
+					if (clouddist <= viewdist){
+						float addition = foglayer(pos+vec3(e*e*0.5,0,e*e*0.5), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+						t += addition;
+					}
+				}
+			}
+		}
+	}
+	color.rgb += tonemap(mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25));
+
 	#endif
 }
