@@ -205,9 +205,9 @@ void main() {
 	#ifndef DistantHorizons
 		//fog
 		if ((FogDensity > 0)&&(depth < 1)){
-			float dist = length(viewPos) / (far*0.75);
+			float dist = length(viewPos) / (far*0.85);
 			float fogFactor = exp(-FogDensity * (1.0 - dist));
-			color.rgb = mix(color.rgb, saturation(fogcolor, 1)*(lightness), clamp(fogFactor, 0.0, 0.1));
+			color.rgb = mix(color.rgb, saturation(fogcolor, 1.1)*(lightness), clamp(fogFactor, 0.0, 0.1));
 		}
 	#endif
 
@@ -250,7 +250,7 @@ void main() {
 					if (clouddist <= viewdist){
 						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
 						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-						vec3 scatter = (saturation(sunlightColor, 0.75) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+						vec3 scatter = (saturation(sunlightColor, 0.85) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
 						t += addition*scatter;
 					}
 				}
