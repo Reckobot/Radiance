@@ -207,7 +207,7 @@ void main() {
 		if ((FogDensity > 0)&&(depth < 1)){
 			float dist = length(viewPos) / (far*0.5);
 			float fogFactor = exp(-FogDensity * (1.0 - dist));
-			color.rgb = mix(color.rgb, saturation(fogcolor, 1.0)*(lightness), clamp(fogFactor, 0.0, 0.1));
+			color.rgb = mix(color.rgb, saturation(fogcolor, 1.25)*(lightness), clamp(fogFactor, 0.0, 0.1));
 		}
 	#endif
 
@@ -240,9 +240,9 @@ void main() {
 	for (int i = 0; i < steps; i++){
 		pos += dir*1;
 		float clouddist = distance(origin, pos);
-		float gridsize = 10000;
-		float thickness = 20;
-		float fogbottom = 50;
+		float gridsize = FogSize;
+		float thickness = FogThickness;
+		float fogbottom = FogHeight;
 		if ((clouddist >= 50)&&(depth < 1)){
 			float viewdist = distance(worldPos, worldcamPos);
 			if ((pos.y <= (fogbottom+thickness)+(thickness*e))&&(pos.y >= fogbottom+(thickness*e))){
@@ -253,7 +253,7 @@ void main() {
 			}
 		}
 	}
-	color.rgb += mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25);
+	color.rgb += mix(color.rgb, saturation(fogcolor, 1.5)*(t*lightness), 1.25);
 
 	#endif
 }
