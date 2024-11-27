@@ -221,39 +221,43 @@ void main() {
 	vec3 pos;
 	vec3 dir;
 	float fogOpacity;
-	float t;
+	vec3 t;
 	int e;
 
 	//fancy fog
 	#ifdef FancyFog
 
 
-	steps = 300;
+	steps = FogSteps;
 	origin = (mat3(gbufferModelViewInverse) * -projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0)) + cameraPosition;
 	pos = origin;
 	dir = -viewDir;
 
 	fogOpacity = FogOpacity;
 
-	t = 0.0;
+	t = vec3(0,0,0);
 	e = 0;
 	for (int i = 0; i < steps; i++){
-		pos += dir*1;
+		pos += dir*FogDist;
 		float clouddist = distance(origin, pos);
 		float gridsize = FogSize;
 		float thickness = FogThickness;
 		float fogbottom = FogHeight;
 		if ((clouddist >= 50)&&(depth < 1)){
 			float viewdist = distance(worldPos, worldcamPos);
-			if ((pos.y <= (fogbottom+thickness)+(thickness*e))&&(pos.y >= fogbottom+(thickness*e))){
-				if (clouddist <= viewdist){
-					float addition = foglayer(pos+vec3(e*e*0.5,0,e*e*0.5), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
-					t += addition;
+			for (int e = 0; e < FogLayers; e++){
+				if ((pos.y <= (fogbottom+thickness)+(thickness*e))&&(pos.y >= fogbottom+(thickness*e))){
+					if (clouddist <= viewdist){
+						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
+						vec3 scatter = (saturation(sunlightColor, 0.75) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+						t += addition*scatter;
+					}
 				}
 			}
 		}
 	}
-	color.rgb += mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25);
+	color.rgb += mix(color.rgb, t, 1.25);
 
 	#endif
 }
