@@ -207,7 +207,7 @@ void main() {
 		if ((FogDensity > 0)&&(depth < 1)){
 			float dist = length(viewPos) / (far*0.5);
 			float fogFactor = exp(-FogDensity * (1.0 - dist));
-			color.rgb = mix(color.rgb, saturation(fogcolor, 1.25)*(lightness), clamp(fogFactor, 0.0, 0.1));
+			color.rgb = mix(color.rgb, saturation(fogcolor, 1)*(lightness), clamp(fogFactor, 0.0, 0.1));
 		}
 	#endif
 
@@ -253,7 +253,7 @@ void main() {
 			}
 		}
 	}
-	color.rgb += mix(color.rgb, saturation(fogcolor, 1.5)*(t*lightness), 1.25);
+	color.rgb += mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25);
 
 	#endif
 }
