@@ -205,7 +205,7 @@ void main() {
 	#ifndef DistantHorizons
 		//fog
 		if ((FogDensity > 0)&&(depth < 1)){
-			float dist = length(viewPos) / (far*0.5);
+			float dist = length(viewPos) / (far*0.75);
 			float fogFactor = exp(-FogDensity * (1.0 - dist));
 			color.rgb = mix(color.rgb, saturation(fogcolor, 1)*(lightness), clamp(fogFactor, 0.0, 0.1));
 		}
