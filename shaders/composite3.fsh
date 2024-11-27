@@ -21,12 +21,13 @@ void main() {
 	vec3 average = vec3(0,0,0);
 	int radius = BloomRadius;
 	int dist = 1;
-	for (int x = -radius; x < radius; x++){
-		average += texture(colortex3, texcoord+vec2((x*dist)/(viewWidth*scale),0)).rgb;
+	for (int y = -radius; y < radius; y++){
+		average += texture(colortex3, texcoord+vec2(0,(y*dist)/(viewHeight*scale))).rgb;
 	}
 	average /= radius * 1;
 	average *= BloomIntensity;
 	brightcolor.rgb = average;
+	color.rgb += brightcolor.rgb;
 #endif
 
 }

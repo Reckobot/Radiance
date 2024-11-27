@@ -14,4 +14,5 @@ layout(location = 1) out vec4 brightcolor;
 
 void main() {
 	color = texture(colortex0, texcoord);
+	color.rgb /= 2;
 }
