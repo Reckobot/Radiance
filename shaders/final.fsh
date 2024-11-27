@@ -4,6 +4,7 @@
 
 #define Brightness 1.2 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define Saturation 0.9 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define Contrast 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex3;
@@ -21,5 +22,5 @@ void main() {
 	color.rgb = pow(color.rgb, vec3(1.0/2.2));
 	color.rgb = tonemap(color.rgb);
 
-	color.rgb = (saturation(color.rgb, Saturation))*Brightness;
+	color.rgb = ContrastSaturationBrightness(color.rgb, 1.0, Saturation, Contrast)*Brightness;
 }

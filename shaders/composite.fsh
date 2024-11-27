@@ -241,22 +241,19 @@ void main() {
 		pos += dir*1;
 		float clouddist = distance(origin, pos);
 		float gridsize = 10000;
-		float thickness = gridsize/500;
+		float thickness = 20;
 		float fogbottom = 50;
-		int layercount = 1;
 		if ((clouddist >= 50)&&(depth < 1)){
 			float viewdist = distance(worldPos, worldcamPos);
-			for (int e = 0; e < layercount*10; e=e+2){
-				if ((pos.y <= (fogbottom+thickness)+e)&&(pos.y >= fogbottom+e)){
-					if (clouddist <= viewdist){
-						float addition = foglayer(pos+vec3(e*e*0.5,0,e*e*0.5), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
-						t += addition;
-					}
+			if ((pos.y <= (fogbottom+thickness)+(thickness*e))&&(pos.y >= fogbottom+(thickness*e))){
+				if (clouddist <= viewdist){
+					float addition = foglayer(pos+vec3(e*e*0.5,0,e*e*0.5), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+					t += addition;
 				}
 			}
 		}
 	}
-	color.rgb += tonemap(mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25));
+	color.rgb += mix(color.rgb, saturation(fogcolor, 1.25)*(t*lightness), 1.25);
 
 	#endif
 }

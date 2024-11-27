@@ -23,8 +23,11 @@ vec3 tonemap(vec3 x) {
   const float a = 1.0;  // contrast
   const float m = 0.22; // linear section start
   const float l = 0.4;  // linear section length
-  const float c = 1.0; // black
+  const float c = 1.33; // black
   const float b = 0.0;  // pedestal
 
   return uchimura(x, P, a, m, l, c, b);
 }
+
+const int RGBA32F = 0;
+const int colortex0Format = RGBA32F;
