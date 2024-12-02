@@ -231,7 +231,7 @@ void main() {
 		float fogbottom = FOGHEIGHT;
 		float center = fogbottom + (thickness/2);
 		float fogtop = (fogbottom+thickness);
-		if ((clouddist >= 25)){
+		if ((clouddist >= 50)){
 			float viewdist = distance(worldPos, worldcamPos);
 			for (int e = 0; e < FOGLAYERS; e++){
 				float top = (fogbottom+thickness)+(thickness*e);
@@ -265,7 +265,7 @@ void main() {
 			}
 		}
 	}
-	color.rgb += mix(color.rgb, t, 1.25);
+	color.rgb += t;
 
 	#endif
 }
