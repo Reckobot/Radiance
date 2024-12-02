@@ -16,16 +16,16 @@ void main() {
 	color = texture(colortex0, texcoord);
 	brightcolor = texture(colortex3, texcoord);
 
-#ifdef Bloom
+#ifdef BLOOM
 	float scale = 0.5;
 	vec3 average = vec3(0,0,0);
-	int radius = BloomRadius;
+	int radius = BLOOMRADIUS;
 	int dist = 1;
 	for (int y = -radius; y < radius; y++){
 		average += texture(colortex3, texcoord+vec2(0,(y*dist)/(viewHeight*scale))).rgb;
 	}
 	average /= radius * 1;
-	average *= BloomIntensity;
+	average *= BLOOMINTENSITY;
 	brightcolor.rgb = average;
 	color.rgb += brightcolor.rgb;
 #endif
