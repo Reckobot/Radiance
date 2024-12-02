@@ -6,11 +6,11 @@
 #include "/lib/bloom.glsl"
 #include "/lib/tonemap.glsl"
 
-uniform sampler2D specular;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
+uniform sampler2D colortex5;
 uniform sampler2D colortex8;
 uniform float viewWidth;
 uniform float viewHeight;
@@ -67,7 +67,7 @@ vec4 getNoise(vec2 coord){
 }
 
 vec3 getSoftShadow(vec4 shadowClipPos){
-	const float range = ShadowSoftness;
+	const float range = SHADOWSOFTNESS;
 	const float increment = 0.5;
 
 	float noise = getNoise(texcoord).r;
@@ -85,7 +85,7 @@ vec3 getSoftShadow(vec4 shadowClipPos){
 		for (float y = -range; y <= range; y+= increment){
 			vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
 			vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0);
-      		offsetShadowClipPos.z -= ShadowBias;
+      		offsetShadowClipPos.z -= SHADOWBIAS;
       		offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz);
       		vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w;
       		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
@@ -105,7 +105,7 @@ const vec3 blocklightColor = vec3(1,1,1);
 const vec3 skylightColor = vec3(1,1,1);
 const vec3 sunlightColor = vec3(2,1.5,1);
 const vec3 ambientColor = vec3(1,1.5,2);
-const float sunPathRotation = SunRotation;
+const float sunPathRotation = SUNROTATION;
 
 float cloudlayer(vec3 pos, int steps, float viewdist, float size){
 	float value = 1/(steps*0.75);
@@ -132,7 +132,7 @@ void main() {
 
 	vec3 blocklight = lightmap.r * blocklightColor;
 	vec3 skylight = lightmap.g * skylightColor;
-	vec3 ambient = ambientColor * Ambient;
+	vec3 ambient = ambientColor * AMBIENT;
 
 	color = texture(colortex0, texcoord);
 	color = vec4(pow(color.rgb, vec3(2.2)), 1);
@@ -148,11 +148,11 @@ void main() {
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
 	vec3 shadow;
-	#ifdef HighQualityShadows
+	#ifdef HQSHADOWS
 	shadow = getSoftShadow(shadowClipPos);
 	#endif
-	#ifndef HighQualityShadows
-		shadowClipPos.z -= ShadowBias; // bias
+	#ifndef HQSHADOWS
+		shadowClipPos.z -= SHADOWBIAS; // bias
 		shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
 		vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
@@ -162,19 +162,16 @@ void main() {
 
 	float shininess = 32;
 	float specmult = 3;
-	#if Material == 3
-		shininess = texture(specular, texcoord).r*128;
-		specmult = texture(specular, texcoord).r*4;
-	#elif Material == 2
-		shininess = rgb2hsv(texture(colortex0, texcoord).rgb).z*128;
-		specmult = rgb2hsv(texture(colortex0, texcoord).rgb).z*6;
+	#if MATERIAL == 3
+		shininess = texture(colortex5, texcoord).r*128;
+		specmult = texture(colortex5, texcoord).r*16;
 	#endif
 	vec3 lightDir = worldLightVector;
 	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(normal, halfwayDir), 0.5), shininess)*specmult;
 	
-	sunlight = (sunlight + (sunlight*spec)) * SunBrightness;
+	sunlight = (sunlight + (sunlight*spec)) * SUNBRIGHTNESS;
 	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
 	float lightness = skyBrightness;
 	sunlight *= lightness;
@@ -183,7 +180,7 @@ void main() {
 	//bloom prep
 	brightcolor = vec4(0,0,0,0);
 	vec3 hsvcolor = rgb2hsv(color.rgb);
-	if (hsvcolor.z >= BloomThreshold){
+	if (hsvcolor.z >= BLOOMTHRESHOLD){
 		brightcolor = color;
 	}
 	else{
@@ -202,17 +199,6 @@ void main() {
 
 	vec3 fogcolor = vec3(1.75,1.35,1);
 
-	#ifndef DistantHorizons
-		//fog
-		if ((FogDensity > 0)&&(depth < 1)){
-			float dist = length(viewPos) / (far*0.75);
-			float fogFactor = exp(-FogDensity * (1.0 - dist));
-			color.rgb = mix(color.rgb, saturation(fogcolor, 1)*(lightness), clamp(fogFactor, 0.0, 0.1));
-		}
-	#endif
-
-
-
 ////////////////////////////////////////////////
 
 
@@ -225,39 +211,61 @@ void main() {
 	int e;
 
 	//fancy fog
-	#ifdef FancyFog
+	#ifdef FANCYFOG
 
 
-	steps = FogSteps;
+	steps = FOGSTEPS;
 	origin = (mat3(gbufferModelViewInverse) * -projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0)) + cameraPosition;
 	pos = origin;
 	dir = -viewDir;
 
-	fogOpacity = FogOpacity;
+	fogOpacity = FOGOPACITY + (rainStrength*2);
 
 	t = vec3(0,0,0);
 	e = 0;
 	for (int i = 0; i < steps; i++){
-		pos += dir*FogDist;
+		pos += dir*FOGDIST;
 		float clouddist = distance(origin, pos);
-		float gridsize = FogSize;
-		float thickness = FogThickness;
-		float fogbottom = FogHeight;
-		if ((clouddist >= 50)&&(depth < 1)){
+		float gridsize = FOGSIZE;
+		float thickness = FOGTHICKNESS;
+		float fogbottom = FOGHEIGHT;
+		float center = fogbottom + (thickness/2);
+		float fogtop = (fogbottom+thickness);
+		if ((clouddist >= 50)){
 			float viewdist = distance(worldPos, worldcamPos);
-			for (int e = 0; e < FogLayers; e++){
-				if ((pos.y <= (fogbottom+thickness)+(thickness*e))&&(pos.y >= fogbottom+(thickness*e))){
+			for (int e = 0; e < FOGLAYERS; e++){
+				float top = (fogbottom+thickness)+(thickness*e);
+				float bottom = fogbottom+(thickness*e);
+				if ((pos.y <= top)&&(pos.y >= bottom)){
 					if (clouddist <= viewdist){
-						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
-						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-						vec3 scatter = (saturation(sunlightColor, 0.75) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
-						t += addition*scatter;
+						float add = foglayer(pos+vec3(e*e/2,0,e*e/2), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+						bool doAdd = false;
+						if (e==0){
+							if (pos.y >= bottom+(add*5000)){
+								doAdd = true;
+							}
+						}else if (e==FOGLAYERS-1){
+							if (pos.y <= top-(add*5000)){
+								doAdd = true;
+							}
+						}
+						else{
+							doAdd = true;
+						}
+
+						if (doAdd == true){
+							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
+							vec3 scatter = (saturation(sunlightColor, 0.85) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+							addition *= scatter;
+							
+							t += addition;
+						}
 					}
 				}
 			}
 		}
 	}
-	color.rgb += mix(color.rgb, t, 1.25);
+	color.rgb += t;
 
 	#endif
 }

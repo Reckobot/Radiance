@@ -2,6 +2,7 @@
 #include "/lib/settings.glsl"
 #include "/lib/color.glsl"
 
+uniform sampler2D specular;
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
 uniform sampler2D lightmap;
@@ -16,10 +17,11 @@ in vec4 glcolor;
 in vec3 normal;
 in mat3 tbnmatrix;
 
-/* RENDERTARGETS: 0,1,2 */
+/* RENDERTARGETS: 0,1,2,5 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
+layout(location = 3) out vec4 encodedSpecular;
 
 vec3 getnormalmap(vec2 texcoord){
 	vec3 normalmap = texture(normals, texcoord).rgb;
@@ -35,9 +37,11 @@ void main() {
 		discard;
 	}
 
+	encodedSpecular = texture(specular, texcoord);
+
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 
-	#if Material == 3
+	#if MATERIAL == 3
 		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);

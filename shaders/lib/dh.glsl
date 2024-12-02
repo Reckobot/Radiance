@@ -1,1 +1,1 @@
-//#define DistantHorizons
+//#define DISTANTHORIZONS
