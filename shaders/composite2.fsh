@@ -1,32 +1,129 @@
 #version 330 compatibility
-#include "/lib/bloom.glsl"
+#include "/lib/settings.glsl"
+#include "/lib/color.glsl"
 
+uniform sampler2D depthtex0;
+uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjectionInverse;
 uniform sampler2D colortex0;
+uniform sampler2D colortex1;
 uniform sampler2D colortex3;
+uniform sampler2D noisetex;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float rainStrength;
+uniform vec3 cameraPosition;
+uniform vec3 skyColor;
+uniform vec3 shadowLightPosition;
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 0,3 */
+float cloudlayer(vec3 pos, int steps, float viewdist, float size){
+	float value = 1/(steps*0.75);
+	vec2 coords = pos.xz/vec2(size, size);
+	value *= texture(colortex8, coords).r;
+	return value;
+}
+
+float foglayer(vec3 pos, int steps, float alpha, float viewdist, float size){
+	float value = 1/(steps*0.75);
+	vec2 coords = (pos.xz*vec2(1,2))/vec2(size, size);
+	value *= texture(noisetex, coords).r*alpha;
+	return value;
+}
+
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
+  vec4 homPos = projectionMatrix * vec4(position, 1.0);
+  return homPos.xyz / homPos.w;
+}
+
+/* RENDERTARGETS: 4 */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 brightcolor;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	brightcolor = texture(colortex3, texcoord);
+////////////////////////////////////////////////
+	vec2 lightmap = texture(colortex1, texcoord).rg;
+	vec3 lightVector = normalize(shadowLightPosition);
+	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
-#ifdef BLOOM
-	float scale = 0.5;
-	vec3 average = vec3(0,0,0);
-	int radius = BLOOMRADIUS;
-	int dist = 1;
-	for (int x = -radius; x < radius; x++){
-		average += texture(colortex3, texcoord+vec2((x*dist)/(viewWidth*scale),0)).rgb;
+	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
+	float lightness = skyBrightness;
+
+	float depth = texture(depthtex0, texcoord).r;
+
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 camPos = projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0));
+	vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1)).xyz + cameraPosition;
+	vec3 worldcamPos = (gbufferModelViewInverse * vec4(camPos, 1)).xyz + cameraPosition;
+
+	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
+
+	int steps;
+	vec3 origin;
+	vec3 pos;
+	vec3 dir;
+	float fogOpacity;
+	vec3 t;
+	int e;
+
+	//fancy fog
+	#ifdef FANCYFOG
+
+
+	steps = FOGSTEPS;
+	origin = (mat3(gbufferModelViewInverse) * -projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0)) + cameraPosition;
+	pos = origin;
+	dir = -viewDir;
+
+	fogOpacity = FOGOPACITY + (rainStrength*2);
+
+	t = vec3(0,0,0);
+	e = 0;
+	for (int i = 0; i < steps; i++){
+		pos += dir*FOGDIST;
+		float clouddist = distance(origin, pos);
+		float gridsize = FOGSIZE;
+		float thickness = FOGTHICKNESS;
+		float fogbottom = FOGHEIGHT;
+		float center = fogbottom + (thickness/2);
+		float fogtop = (fogbottom+thickness);
+		if ((clouddist >= 50)){
+			float viewdist = distance(worldPos, worldcamPos);
+			for (int e = 0; e < FOGLAYERS; e++){
+				float top = (fogbottom+thickness)+(thickness*e);
+				float bottom = fogbottom+(thickness*e);
+				if ((pos.y <= top)&&(pos.y >= bottom)){
+					if (clouddist <= viewdist){
+						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+						bool doAdd = false;
+						if (e==0){
+							if (pos.y >= bottom+(add*5000)){
+								doAdd = true;
+							}
+						}else if (e==FOGLAYERS-1){
+							if (pos.y <= top-(add*5000)){
+								doAdd = true;
+							}
+						}
+						else{
+							doAdd = true;
+						}
+
+						if (doAdd == true){
+							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
+							vec3 scatter = (saturation(sunlightColor, 0.85) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+							addition *= scatter;
+							
+							t += addition;
+						}
+					}
+				}
+			}
+		}
 	}
-	average /= radius * 1;
-	average *= BLOOMINTENSITY;
-	brightcolor.rgb = average;
-#endif
+	t *= 2;
+	color.rgb = t;
 
+	#endif
 }

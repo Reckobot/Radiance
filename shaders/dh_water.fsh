@@ -39,7 +39,7 @@ void main() {
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 
 		color.rgb = pow(color.rgb, vec3(4.2));
-		color.rgb = saturation(color.rgb, 0.8);
+		color.rgb = ContrastSaturationBrightness(color.rgb, 1.0, 0.1, 1.0);
 	#else
 		discard;
 	#endif

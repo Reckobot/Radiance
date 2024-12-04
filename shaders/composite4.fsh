@@ -15,8 +15,8 @@ void main() {
 	vec3 average = vec3(0,0,0);
 	int radius = 2;
 	int dist = 1;
-	for (int x = -radius; x < radius; x++){
-		average += texture(colortex7, texcoord+vec2((x*dist)/(viewWidth*scale),0)).rgb;
+	for (int y = -radius; y < radius; y++){
+		average += texture(colortex7, texcoord+vec2(0,(y*dist)/(viewHeight*scale))).rgb;
 	}
 	average /= radius * 2;
 	reflection.rgb = average;

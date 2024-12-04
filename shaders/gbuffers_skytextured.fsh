@@ -1,18 +1,20 @@
 #version 330 compatibility
-#include "/lib/color.glsl"
 
-uniform sampler2D colortex0;
-uniform sampler2D colortex3;
-uniform float viewWidth;
-uniform float viewHeight;
+uniform sampler2D gtexture;
+
+uniform float alphaTestRef = 0.1;
 
 in vec2 texcoord;
+in vec4 glcolor;
 
-/* RENDERTARGETS: 0,3 */
+/* RENDERTARGETS: 0,9 */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 brightcolor;
+layout(location = 1) out vec4 skybuffer;
 
 void main() {
-	color = texture(colortex0, texcoord);
-	color.rgb /= 2;
+	color = texture(gtexture, texcoord) * glcolor;
+	if (color.a < alphaTestRef) {
+		discard;
+	}
+	skybuffer = color;
 }

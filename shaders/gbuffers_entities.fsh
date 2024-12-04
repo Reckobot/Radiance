@@ -37,7 +37,7 @@ void main() {
 		discard;
 	}
 
-	encodedSpecular = vec4(vec3(1),1);
+	encodedSpecular = vec4(vec3(0),1);
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 

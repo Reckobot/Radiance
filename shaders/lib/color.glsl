@@ -40,3 +40,5 @@ vec3 ContrastSaturationBrightness(vec3 color, float brt, float sat, float con)
 	
 	return conColor;
 }
+
+vec3 fogcolor = vec3(1.75,1.35,1);
