@@ -2,10 +2,12 @@
 #include "/lib/settings.glsl"
 #include "/lib/color.glsl"
 
+uniform sampler2D specular;
 uniform sampler2D depthtex0;
 uniform sampler2D normals;
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
+uniform vec3 shadowLightPosition;
 
 uniform float alphaTestRef = 0.1;
 
@@ -30,30 +32,32 @@ vec3 getnormalmap(vec2 texcoord){
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
+	#ifdef SSR
+		color.rgb = ContrastSaturationBrightness(color.rgb, 0.5, 0.0, 1.0);
+		vec3 hsvcolor = rgb2hsv(color.rgb);
+		if (hsvcolor.z >= 0.16){
+			color.rgb *= 2.0;
+		}
+	#else
+		color.rgb = ContrastSaturationBrightness(color.rgb, 1.0, 0.5, 1.0);
+		vec3 hsvcolor = rgb2hsv(color.rgb);
+		if (hsvcolor.z >= 0.675){
+			color.rgb *= 1.5;
+		}
+	#endif
 	color *= texture(lightmap, lmcoord);
 	if (color.a < alphaTestRef) {
 		discard;
 	}
+	color.a = 0.5;
+
+	encodedSpecular = vec4(1);
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 
-#ifdef FANCYWATER
-	#ifdef LabPBR
+	#if MATERIAL == 3
 		encodedNormal = vec4(getnormalmap(texcoord) * 1 + 0.5, 1.0);
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
-	encodedSpecular = color;
-	encodedSpecular *= 4;
-	color.rgb *= 0.8;
-	color.rgb = saturation(color.rgb, 0.8);
-	color.rgb = pow(color.rgb, vec3(1));
-	
-	if (rgb2hsv(color.rgb).z > 0.45){
-		color.rgb *= 1.25;
-	}
-	if (rgb2hsv(color.rgb).z > 0.65){
-		color.rgb *= 1.25;
-	}
-#endif
 }
