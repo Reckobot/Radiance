@@ -3,7 +3,6 @@
 #include "/lib/color.glsl"
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
-#include "/lib/bloom.glsl"
 #include "/lib/tonemap.glsl"
 #include "/lib/rt.glsl"
 
