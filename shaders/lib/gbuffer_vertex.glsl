@@ -20,5 +20,6 @@ void main() {
 	vec3 tangent = gl_NormalMatrix * at_tangent.xyz;
 	tangent = mat3(gbufferModelViewInverse) * tangent;
 	vec3 bitangent = cross(tangent, normal);
+	bitangent *= at_tangent.w;
 	tbnmatrix = mat3(tangent, bitangent, normal);
 }
