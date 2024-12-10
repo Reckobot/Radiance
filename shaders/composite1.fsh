@@ -8,6 +8,8 @@ uniform sampler2D depthtex0;
 uniform sampler2D colortex0;
 uniform sampler2D colortex2;
 uniform sampler2D colortex5;
+uniform sampler2D colortex9;
+uniform sampler2D colortex10;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -15,6 +17,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 skyColor;
+uniform float far;
 
 in vec2 texcoord;
 
@@ -24,6 +27,15 @@ layout(location = 0) out vec4 reflection;
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
   vec4 homPos = projectionMatrix * vec4(position, 1.0);
   return homPos.xyz / homPos.w;
+}
+
+float fogify(float x, float w) {
+	return w / (x * x + w);
+}
+
+vec3 calcSkyColor(vec3 pos) {
+	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
+	return mix(ContrastSaturationBrightness(skyColor, 1.0, 0.5, 1.0), ContrastSaturationBrightness(fogcolor, 0.75, 0.75, 1.0), fogify(max(upDot+0.25, 0.0), 0.25));
 }
 
 void main() {
@@ -43,9 +55,8 @@ void main() {
 	if (refl > 0){
 		vec3 reflectRay = reflect(normalize(viewPos), vnormal);
 		int steps = SSR_STEPS;
-		vec3 sky = ContrastSaturationBrightness(skyColor, 0.25, 2.0, 0.5);
 
-		for (int i = 0; i < steps; i++){
+		for (int i = 2; i < steps; i++){
 			vec3 rayPos = viewPos + (reflectRay*SSR_DIST*i);
 			vec3 rayscreenPos = viewtoscreen(rayPos);
 			vec2 raycoord = rayscreenPos.xy;
@@ -56,21 +67,20 @@ void main() {
 			float rayrefl = raypbr.g;
 
 			vec3 newrayPos;
-			if ((distance(rayPos, rayogPos) <= 0.5)&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
-				newrayPos = rayogPos;
-				rayscreenPos = viewtoscreen(newrayPos);
-				raycoord = rayscreenPos.xy;
-				if (texture(colortex5, raycoord).g == 0){
-					vec3 sample = texture(colortex0, raycoord).rgb;
-					reflection.rgb += sample.rgb * (refl);
+			if ((distance(rayPos, rayogPos) <= (SSR_DIST))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
+				if (distance(rayPos, viewPos) > (SSR_DIST)){	
+					newrayPos = rayogPos;
+					rayscreenPos = viewtoscreen(newrayPos);
+					raycoord = rayscreenPos.xy;
+					vec3 sampl = ContrastSaturationBrightness(texture(colortex10, raycoord).rgb, 1.0, 0.7, 1.0);
+					reflection.rgb += sampl.rgb * 4;
 					break;
 				}
 			}
 		}
 		if (reflection.rgb == vec3(0)){
-			reflection.rgb += sky/10;
+			reflection.rgb = calcSkyColor(-viewPos);
 		}
-		reflection.rgb *= 1;
 	}
 	#endif
 }

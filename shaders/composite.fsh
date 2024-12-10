@@ -13,6 +13,8 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex5;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
+uniform sampler2D colortex11;
+uniform sampler2D colortex13;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform int biome_precipitation;
@@ -40,6 +42,8 @@ uniform int renderStage;
 in vec2 texcoord;
 in vec3 viewnormal;
 
+const float bias = SHADOWRES*0.00000075;
+
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
   vec4 homPos = projectionMatrix * vec4(position, 1.0);
   return homPos.xyz / homPos.w;
@@ -60,7 +64,7 @@ vec3 getShadow(vec3 shadowScreenPos){
 
 	vec4 shadowColor = texture(shadowcolor0, shadowScreenPos.xy);
 
-	return shadowColor.rgb * (1.0 - shadowColor.a);
+	return shadowColor.rgb*2;
 }
 
 vec4 getNoise(vec2 coord){
@@ -88,7 +92,7 @@ vec3 getSoftShadow(vec4 shadowClipPos){
 		for (float y = -range; y <= range; y+= increment){
 			vec2 offset = rotation * vec2(x, y) / shadowMapResolution;
 			vec4 offsetShadowClipPos = shadowClipPos + vec4(offset, 0.0, 0.0);
-      		offsetShadowClipPos.z -= SHADOWBIAS;
+      		offsetShadowClipPos.z -= bias;
       		offsetShadowClipPos.xyz = distortShadowClipPos(offsetShadowClipPos.xyz);
       		vec3 shadowNDCPos = offsetShadowClipPos.xyz / offsetShadowClipPos.w;
       		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
@@ -106,8 +110,7 @@ layout(location = 1) out vec4 litparts;
 
 const float sunPathRotation = SUNROTATION;
 
-void main() {
-
+void main() {	
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	
@@ -120,6 +123,18 @@ void main() {
 	vec3 ambient = ambientColor * AMBIENT;
 
 	color = texture(colortex0, texcoord);
+	vec4 nonTerrain = texture(colortex11, texcoord);
+	vec4 translucent = texture(colortex13, texcoord);
+	bool isterrain = true;
+	if ((nonTerrain != vec4(0))&&(translucent == vec4(0))){
+		color = nonTerrain;
+		isterrain = false;
+		ambient = vec3(2) * 0.25 - 0.25;
+	}else if ((nonTerrain != vec4(0))){
+		color = mix(nonTerrain, translucent, 0.75);
+		isterrain = false;
+		ambient = ambientColor * 0.25 - 0.25;
+	}
 	color = vec4(pow(color.rgb, vec3(2.2)), 1);
 
 	float depth = texture(depthtex0, texcoord).r;
@@ -137,15 +152,15 @@ void main() {
 	shadow = getSoftShadow(shadowClipPos);
 	#endif
 	#ifndef HQSHADOWS
-		shadowClipPos.z -= SHADOWBIAS; // bias
+		shadowClipPos.z -= bias; // bias
 		shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz); // distortion
 		vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
 		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 		shadow = getShadow(shadowScreenPos);
 	#endif
 	vec3 sunlight;
-	if (texture(colortex5, texcoord).r >= 1){
-		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g);
+	if (texture(colortex13, texcoord) != vec4(0)){
+		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.2, 0.5) * lightmap.g);
 	}else{
 		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g)*shadow;
 	}
@@ -153,8 +168,10 @@ void main() {
 	float shininess = 32;
 	float specmult = 3;
 	#if MATERIAL == 3
-		shininess = texture(colortex5, texcoord).r*128;
-		specmult = texture(colortex5, texcoord).r*16;
+		if (isterrain == true){
+			shininess = texture(colortex5, texcoord).r*128;
+			specmult = texture(colortex5, texcoord).r*16;
+		}
 	#endif
 	vec3 lightDir = worldLightVector;
 	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));

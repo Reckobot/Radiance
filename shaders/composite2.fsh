@@ -21,7 +21,6 @@ in vec2 texcoord;
 float cloudlayer(vec3 pos, int steps, float viewdist, float size){
 	float value = 1/(steps*0.75);
 	vec2 coords = pos.xz/vec2(size, size);
-	value *= texture(colortex8, coords).r;
 	return value;
 }
 
@@ -112,7 +111,7 @@ void main() {
 
 						if (doAdd == true){
 							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-							vec3 scatter = (saturation(sunlightColor, 0.85) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+							vec3 scatter = (saturation(sunlightColor, 1.5) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
 							addition *= scatter;
 							
 							t += addition;

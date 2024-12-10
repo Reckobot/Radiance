@@ -31,3 +31,19 @@ vec3 tonemap(vec3 x) {
 
 const int RGBA32F = 0;
 const int colortex0Format = RGBA32F;
+const int colortex1Format = RGBA32F;
+const int colortex2Format = RGBA32F;
+const int colortex3Format = RGBA32F;
+const int colortex4Format = RGBA32F;
+const int colortex5Format = RGBA32F;
+const int colortex6Format = RGBA32F;
+const int colortex7Format = RGBA32F;
+const int colortex8Format = RGBA32F;
+const int colortex9Format = RGBA32F;
+const int colortex10Format = RGBA32F;
+const int colortex11Format = RGBA32F;
+const int colortex12Format = RGBA32F;
+const int colortex13Format = RGBA32F;
+const int colortex14Format = RGBA32F;
+const int colortex15Format = RGBA32F;
+const int colortex16Format = RGBA32F;
