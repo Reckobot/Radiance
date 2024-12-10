@@ -91,11 +91,12 @@ void main() {
 							newrayPos = rayogPos;
 							rayscreenPos = viewtoscreen(newrayPos);
 							raycoord = rayscreenPos.xy;
-							vec3 sampl =  texture(colortex10, raycoord).rgb *( (texture(colortex3, raycoord).rgb*0.5)+0.05);
+							vec3 c = texture(colortex10, raycoord).rgb;
+							vec3 sampl = c *( (texture(colortex3, raycoord).rgb*0.5)+0.05);
 							sampl *= lit;
 							sampl *= spec+0.5;
 							sampl *= rayrefl+0.5;
-							sampl *= 2;
+							sampl *= rgb2hsv(c).z*16;
 							average += sampl;
 							break;
 						}

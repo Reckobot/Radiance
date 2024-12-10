@@ -111,7 +111,7 @@ void main() {
 
 						if (doAdd == true){
 							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-							vec3 scatter = (saturation(sunlightColor, 1.5) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+							vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
 							addition *= scatter;
 							
 							t += addition;
