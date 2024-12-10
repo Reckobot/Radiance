@@ -160,7 +160,7 @@ void main() {
 	#endif
 	vec3 sunlight;
 	if (texture(colortex13, texcoord) != vec4(0)){
-		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.2, 0.5) * lightmap.g);
+		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.2, 0.5) * lightmap.g)*clamp(shadow+0.5, 0.0, 1.0);
 	}else{
 		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g)*shadow;
 	}
