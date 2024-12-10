@@ -9,9 +9,9 @@
 
 //fancy fog stuff
 #define FOGOPACITY 2.0 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0]
-#define FOGSIZE 5000 //[10 100 500 1000 2500 5000 10000 20000 30000 40000 50000 60000 70000 80000 90000 100000]
+#define FOGSIZE 2500 //[10 100 500 1000 2500 5000 10000 20000 30000 40000 50000 60000 70000 80000 90000 100000]
 #define FOGHEIGHT 50 //[0 25 50 75 100 125 150 175 200 225 250 275 300]
-#define FOGTHICKNESS 10 //[0 5 10 12.5 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define FOGTHICKNESS 12.5 //[0 5 10 12.5 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define FOGSTEPS 200 //[10 50 100 200 300 400 500 600 700 800 900 1000]
 #define FOGDIST 1 //[1 2 3 4 5 6 7 8]
 #define FOGLAYERS 4 //[1 2 3 4 5 6 7 8]
@@ -34,3 +34,6 @@ const vec3 blocklightColor = vec3(1,1,1);
 const vec3 skylightColor = vec3(1,1,1);
 const vec3 sunlightColor = vec3(2,1.5,1);
 const vec3 ambientColor = vec3(1,1.5,2);
+uniform vec3 fogColor;
+
+uniform int logicalHeightLimit;

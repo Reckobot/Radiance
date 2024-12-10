@@ -91,4 +91,8 @@ void main() {
 	color.rgb = ContrastSaturationBrightness(color.rgb, 1.0, SATURATION, CONTRAST)*BRIGHTNESS;
 	color.rgb = vec3(color.r + (COLORTEMP*0.1), color.g, color.b - (COLORTEMP*0.05));
 	color.rgb = tonemap(color.rgb);
+
+	if (logicalHeightLimit == 256){
+		color.rgb = ContrastSaturationBrightness(color.rgb, 0.5, 0.0, 1.0);
+	}
 }

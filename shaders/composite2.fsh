@@ -77,6 +77,10 @@ void main() {
 
 	fogOpacity = FOGOPACITY + (rainStrength*2);
 
+	if (logicalHeightLimit == 128){
+		steps = 100;
+	}
+
 	t = vec3(0,0,0);
 	e = 0;
 	for (int i = 0; i < steps; i++){
@@ -87,21 +91,39 @@ void main() {
 		float fogbottom = FOGHEIGHT;
 		float center = fogbottom + (thickness/2);
 		float fogtop = (fogbottom+thickness);
-		if ((clouddist >= 50)){
+		int layerAdd = 0;
+
+		float renderdist = 50;
+
+		if (logicalHeightLimit == 128){
+			layerAdd = 4;
+			thickness += 25;
+			fogbottom = 0;
+			fogOpacity *= 1.01;
+			gridsize *= 2;
+		}else if (logicalHeightLimit == 256){
+			renderdist = 0;
+			layerAdd = 4;
+			thickness += 25;
+			fogbottom = 0;
+			gridsize /= 2;
+		}
+
+		if ((clouddist >= renderdist)){
 			float viewdist = distance(worldPos, worldcamPos);
-			for (int e = 0; e < FOGLAYERS; e++){
-				float top = (fogbottom+thickness)+(thickness*e);
-				float bottom = fogbottom+(thickness*e);
+			for (int e = 0; e < FOGLAYERS+layerAdd; e++){
+				float top = (fogbottom+thickness)+(thickness/2*e);
+				float bottom = fogbottom+(thickness/2*e);
 				if ((pos.y <= top)&&(pos.y >= bottom)){
 					if (clouddist <= viewdist){
 						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
 						bool doAdd = false;
 						if (e==0){
-							if (pos.y >= bottom+(add*5000)){
+							if (pos.y >= bottom+(add*250)){
 								doAdd = true;
 							}
 						}else if (e==FOGLAYERS-1){
-							if (pos.y <= top-(add*5000)){
+							if (pos.y <= top-(add*250)){
 								doAdd = true;
 							}
 						}
@@ -113,6 +135,12 @@ void main() {
 							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
 							vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
 							addition *= scatter;
+
+							if (logicalHeightLimit == 128){
+								addition = fogColor / 8 * add;
+							}else if (logicalHeightLimit == 256){
+								addition = vec3(add);
+							}
 							
 							t += addition;
 						}
