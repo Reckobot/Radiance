@@ -91,19 +91,19 @@ void main() {
 		float fogbottom = FOGHEIGHT;
 		float center = fogbottom + (thickness/2);
 		float fogtop = (fogbottom+thickness);
-		int layerAdd = 0;
+		int layers = FOGLAYERS;
 
 		float renderdist = 50;
 
 		if (logicalHeightLimit == 128){
-			layerAdd = 4;
+			layers += 2;
 			thickness += 25;
 			fogbottom = 0;
 			fogOpacity *= 1.01;
 			gridsize *= 2;
 		}else if (logicalHeightLimit == 256){
+			layers += 2;
 			renderdist = 0;
-			layerAdd = 4;
 			thickness += 25;
 			fogbottom = 0;
 			gridsize /= 2;
@@ -111,7 +111,7 @@ void main() {
 
 		if ((clouddist >= renderdist)){
 			float viewdist = distance(worldPos, worldcamPos);
-			for (int e = 0; e < FOGLAYERS+layerAdd; e++){
+			for (int e = 0; e < layers; e++){
 				float top = (fogbottom+thickness)+(thickness/2*e);
 				float bottom = fogbottom+(thickness/2*e);
 				if ((pos.y <= top)&&(pos.y >= bottom)){
@@ -122,7 +122,7 @@ void main() {
 							if (pos.y >= bottom+(add*250)){
 								doAdd = true;
 							}
-						}else if (e==FOGLAYERS-1){
+						}else if (e==(layers)-1){
 							if (pos.y <= top-(add*250)){
 								doAdd = true;
 							}
