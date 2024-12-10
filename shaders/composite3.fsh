@@ -93,7 +93,7 @@ void main() {
 							raycoord = rayscreenPos.xy;
 							vec3 sampl =  texture(colortex10, raycoord).rgb *( (texture(colortex3, raycoord).rgb*0.5)+0.05);
 							sampl *= lit;
-							sampl *= spec*4+0.5;
+							sampl *= spec+0.5;
 							sampl *= rayrefl*4+0.5;
 							sampl *= 4;
 							average += sampl;
