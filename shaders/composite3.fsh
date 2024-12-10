@@ -94,8 +94,8 @@ void main() {
 							vec3 sampl =  texture(colortex10, raycoord).rgb *( (texture(colortex3, raycoord).rgb*0.5)+0.05);
 							sampl *= lit;
 							sampl *= spec+0.5;
-							sampl *= rayrefl*4+0.5;
-							sampl *= 4;
+							sampl *= rayrefl+0.5;
+							sampl *= 2;
 							average += sampl;
 							break;
 						}
