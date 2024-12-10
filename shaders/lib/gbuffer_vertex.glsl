@@ -14,12 +14,9 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	glcolor = gl_Color;
-	normal = gl_NormalMatrix * gl_Normal; // this gives us the normal in view space
-	normal = mat3(gbufferModelViewInverse) * normal; // this converts the normal to world/player space
+	normal = gl_NormalMatrix * gl_Normal;
 
-	vec3 tangent = gl_NormalMatrix * at_tangent.xyz;
-	tangent = mat3(gbufferModelViewInverse) * tangent;
-	vec3 bitangent = cross(tangent, normal);
-	bitangent *= at_tangent.w;
-	tbnmatrix = mat3(tangent, bitangent, normal);
+	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+	vec3 bitangent = mat3(gbufferModelViewInverse) * normalize(cross(tangent, normal) * at_tangent.w);
+	tbnmatrix = mat3(tangent, bitangent, mat3(gbufferModelViewInverse) * normal);
 }
