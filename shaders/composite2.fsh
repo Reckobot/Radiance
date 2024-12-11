@@ -21,7 +21,6 @@ in vec2 texcoord;
 float cloudlayer(vec3 pos, int steps, float viewdist, float size){
 	float value = 1/(steps*0.75);
 	vec2 coords = pos.xz/vec2(size, size);
-	value *= texture(colortex8, coords).r;
 	return value;
 }
 
@@ -78,6 +77,10 @@ void main() {
 
 	fogOpacity = FOGOPACITY + (rainStrength*2);
 
+	if (logicalHeightLimit == 128){
+		steps = 100;
+	}
+
 	t = vec3(0,0,0);
 	e = 0;
 	for (int i = 0; i < steps; i++){
@@ -88,33 +91,44 @@ void main() {
 		float fogbottom = FOGHEIGHT;
 		float center = fogbottom + (thickness/2);
 		float fogtop = (fogbottom+thickness);
-		if ((clouddist >= 50)){
+		int layers = FOGLAYERS;
+
+		float renderdist = 50;
+
+		if (logicalHeightLimit == 128){
+			layers += 2;
+			thickness += 25;
+			fogbottom = 0;
+			fogOpacity *= 1.01;
+			gridsize *= 2;
+		}else if (logicalHeightLimit == 256){
+			layers += 2;
+			renderdist = 0;
+			thickness += 25;
+			fogbottom = 0;
+			gridsize /= 2;
+		}
+
+		if ((clouddist >= renderdist)){
 			float viewdist = distance(worldPos, worldcamPos);
-			for (int e = 0; e < FOGLAYERS; e++){
-				float top = (fogbottom+thickness)+(thickness*e);
-				float bottom = fogbottom+(thickness*e);
+			for (int e = 0; e < layers; e++){
+				float top = (fogbottom+thickness)+(thickness/2*e);
+				float bottom = fogbottom+(thickness/2*e);
 				if ((pos.y <= top)&&(pos.y >= bottom)){
 					if (clouddist <= viewdist){
 						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
-						bool doAdd = false;
-						if (e==0){
-							if (pos.y >= bottom+(add*5000)){
-								doAdd = true;
-							}
-						}else if (e==FOGLAYERS-1){
-							if (pos.y <= top-(add*5000)){
-								doAdd = true;
-							}
-						}
-						else{
-							doAdd = true;
-						}
 
-						if (doAdd == true){
-							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-							vec3 scatter = (saturation(sunlightColor, 0.85) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
-							addition *= scatter;
-							
+						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
+						vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+						addition *= scatter;
+
+						if (logicalHeightLimit == 128){
+							addition = fogColor / 8 * add;
+						}else if (logicalHeightLimit == 256){
+							addition = vec3(add);
+						}
+						
+						if ((pos.y <= top-(add*2500))&&(pos.y >= bottom+(add*2500))){
 							t += addition;
 						}
 					}

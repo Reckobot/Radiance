@@ -18,17 +18,20 @@ uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex9;
+uniform sampler2D colortex11;
+uniform vec3 skyColor;
+uniform vec3 cameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float far;
+uniform int isEyeInWater;
 
 uniform mat4 gbufferProjectionInverse;
 
 in vec2 texcoord;
 
-/* RENDERTARGETS: 0,3,4 */
+/* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
-layout(location = 1) out vec4 brightcolor;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
   vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -36,34 +39,55 @@ vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
 }
 
 void main() {
+	float depth = texture(depthtex1, texcoord).r;
+	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
+	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+
+	float lightness = (rgb2hsv(skyColor).z);
+
 	color = texture(colortex0, texcoord);
+	
+	#ifdef SSGI
+		color.rgb += texture(colortex6, texcoord).rgb * lightness;
+	#endif
 	#ifdef SSR
-	if (texture(colortex5, texcoord).g >= 1){
-		color.rgb += ContrastSaturationBrightness((texture(colortex7, texcoord).rgb), 1.5, 1.0, 1.05);
+	float refl = texture(colortex5, texcoord).g;
+	if (refl >= 0.1+(230/255)){
+		vec3 reflection = (texture(colortex7, texcoord).rgb);
+		reflection = mix(reflection, color.rgb, 1-clamp(refl, 0.0, 1.0));
+		color.rgb *= reflection;
 	}
 	#endif
-	#ifdef SSGI
-		color.rgb += texture(colortex6, texcoord).rgb;
-	#endif
+
 	#ifndef DISTANTHORIZONS
 		#ifdef DISTANTFOG
-		float depth = texture(depthtex1, texcoord).r;
-
-		vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
-		vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-		float fogdensity = 10;
-		//fog
-		if ((fogdensity > 0)){
-			float dist = (far*0.85) / length(viewPos);
-			float fogFactor = exp(-fogdensity * (1.0 - dist));
-			color.rgb = mix((texture(colortex9, texcoord).rgb)*3.0, color.rgb, clamp(fogFactor, 0.0, 1.0));
+		if (isEyeInWater == 0){
+			float fogdensity = 10;
+			//fog
+			if ((fogdensity > 0)){
+				float dist = length(viewPos)/far;
+				float fogFactor = exp(-fogdensity * (1.0 - dist));
+				color.rgb = mix(color.rgb, ((texture(colortex9, texcoord).rgb)*3.0)*clamp(exp(cameraPosition.y-50), 0.0, 1.0), clamp(fogFactor, 0.0, 1.0));
+			}
 		}
 		#endif
 	#endif
-	color.rgb += texture(colortex4, texcoord).rgb;
+
+	vec3 fogcolor;
+
+	if (isEyeInWater == 1){
+	}
+
+	if (isEyeInWater == 0){
+		color.rgb += texture(colortex4, texcoord).rgb;
+	}
 	color.rgb = pow(color.rgb, vec3(1.0/2.2));
 
 	color.rgb = ContrastSaturationBrightness(color.rgb, 1.0, SATURATION, CONTRAST)*BRIGHTNESS;
 	color.rgb = vec3(color.r + (COLORTEMP*0.1), color.g, color.b - (COLORTEMP*0.05));
 	color.rgb = tonemap(color.rgb);
+
+	if (logicalHeightLimit == 256){
+		color.rgb = ContrastSaturationBrightness(color.rgb, 0.5, 0.0, 1.0);
+	}
 }
