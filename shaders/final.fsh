@@ -54,7 +54,7 @@ void main() {
 	float refl = texture(colortex5, texcoord).g;
 	if (refl >= 0.1+(230/255)){
 		vec3 reflection = (texture(colortex7, texcoord).rgb);
-		reflection = mix(reflection, color.rgb, 1-clamp(refl, 0.0, 1.0));
+		reflection = mix(reflection, color.rgb, 1-clamp(refl, 0.0, 0.5));
 		color.rgb *= reflection;
 	}
 	#endif

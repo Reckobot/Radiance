@@ -33,8 +33,8 @@ vec3 getnormalmap(vec2 texcoord){
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
-	color.rgb = ContrastSaturationBrightness(color.rgb, 1.25, 0.1, 1.0);
-	color.a = 0.75;
+	color.rgb = ContrastSaturationBrightness(color.rgb, 1.5, 0.0, 1.25);
+	color.a = 0.5;
 
 	original = color;
 	original = vec4(pow(original.rgb, vec3(2.2)), 1);

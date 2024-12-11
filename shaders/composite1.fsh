@@ -75,7 +75,7 @@ void main() {
 					rayscreenPos = viewtoscreen(newrayPos);
 					raycoord = rayscreenPos.xy;
 					vec3 sampl = ContrastSaturationBrightness(texture(colortex10, raycoord).rgb, 1.0, 0.7, 1.0);
-					reflection.rgb += sampl.rgb * 2;
+					reflection.rgb += sampl.rgb * 8;
 					break;
 				}
 			}
