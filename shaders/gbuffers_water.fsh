@@ -37,6 +37,7 @@ void main() {
 	color.a = 0.5;
 
 	original = texture(gtexture, texcoord) * glcolor;
+	original.rgb = ContrastSaturationBrightness(original.rgb, 1.5, 0.0, 1.0);
 	original = vec4(pow(original.rgb, vec3(2.2)), 1);
 	original *= rgb2hsv(vec3(lmcoord, 0.0)).z;
 
