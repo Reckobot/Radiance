@@ -17,12 +17,12 @@ in vec4 glcolor;
 in vec3 normal;
 in mat3 tbnmatrix;
 
-/* RENDERTARGETS: 0,1,2,5,13 */
+/* RENDERTARGETS: 0,1,2,5,10 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 layout(location = 3) out vec4 encodedSpecular;
-layout(location = 4) out vec4 water;
+layout(location = 4) out vec4 original;
 
 vec3 getnormalmap(vec2 texcoord){
 	vec3 normalmap = texture(normals, texcoord).rgb;
@@ -33,14 +33,21 @@ vec3 getnormalmap(vec2 texcoord){
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
-	color.rgb = ContrastSaturationBrightness(color.rgb, 1.25, 0.25, 1.0);
-	color *= texture(lightmap, lmcoord);
+	color.rgb = ContrastSaturationBrightness(color.rgb, 1.25, 0.1, 1.0);
+	color.a = 0.75;
+
+	original = color;
+	original = vec4(pow(original.rgb, vec3(2.2)), 1);
+	original *= rgb2hsv(vec3(lmcoord, 0.0)).z;
+
 	if (color.a < alphaTestRef) {
 		discard;
 	}
-	color.a = 0.75;
 
-	encodedSpecular = vec4(0.75);
+	encodedSpecular = texture(specular, texcoord);
+	if (encodedSpecular == vec4(0)){
+		encodedSpecular = vec4(1);
+	}
 
 	lightmapData = vec4(lmcoord, 0.0, 1.0);
 
@@ -49,6 +56,4 @@ void main() {
 	#else
 		encodedNormal = vec4(normal * 0.5 + 0.5, 1.0);
 	#endif
-
-	water = color;
 }

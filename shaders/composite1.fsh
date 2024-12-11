@@ -56,7 +56,9 @@ void main() {
 		vec3 reflectRay = reflect(normalize(viewPos), vnormal);
 		int steps = SSR_STEPS;
 
-		for (int i = 2; i < steps; i++){
+		float start = exp(length(viewPos)/12);
+
+		for (int i = 0; i < steps; i++){
 			vec3 rayPos = viewPos + (reflectRay*SSR_DIST*i);
 			vec3 rayscreenPos = viewtoscreen(rayPos);
 			vec2 raycoord = rayscreenPos.xy;
@@ -68,18 +70,18 @@ void main() {
 
 			vec3 newrayPos;
 			if ((distance(rayPos, rayogPos) <= (SSR_DIST))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
-				if (distance(rayPos, viewPos) > (SSR_DIST)){	
+				if (distance(rayPos, viewPos) > (SSR_DIST * start)){	
 					newrayPos = rayogPos;
 					rayscreenPos = viewtoscreen(newrayPos);
 					raycoord = rayscreenPos.xy;
 					vec3 sampl = ContrastSaturationBrightness(texture(colortex10, raycoord).rgb, 1.0, 0.7, 1.0);
-					reflection.rgb += sampl.rgb * 4;
+					reflection.rgb += sampl.rgb * 2;
 					break;
 				}
 			}
 		}
 		if (reflection.rgb == vec3(0)){
-			reflection.rgb = calcSkyColor(-viewPos);
+			reflection.rgb = vec3(1);
 		}
 	}
 	#endif

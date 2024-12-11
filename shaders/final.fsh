@@ -19,7 +19,6 @@ uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex9;
 uniform sampler2D colortex11;
-uniform sampler2D colortex13;
 uniform vec3 skyColor;
 uniform vec3 cameraPosition;
 uniform float viewWidth;
@@ -47,10 +46,7 @@ void main() {
 	float lightness = (rgb2hsv(skyColor).z);
 
 	color = texture(colortex0, texcoord);
-
-	vec4 nonTerrain = texture(colortex11, texcoord);
-
-	if (nonTerrain == vec4(0)){
+	
 	#ifdef SSGI
 		color.rgb += texture(colortex6, texcoord).rgb * lightness;
 	#endif
@@ -62,7 +58,6 @@ void main() {
 		color.rgb *= reflection;
 	}
 	#endif
-	}
 
 	#ifndef DISTANTHORIZONS
 		#ifdef DISTANTFOG

@@ -28,6 +28,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowtex2;
@@ -45,8 +46,8 @@ in vec3 viewnormal;
 const float bias = SHADOWRES*0.00000075;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
-  vec4 homPos = projectionMatrix * vec4(position, 1.0);
-  return homPos.xyz / homPos.w;
+	vec4 homPos = projectionMatrix * vec4(position, 1.0);
+	return homPos.xyz / homPos.w;
 }
 
 vec3 getShadow(vec3 shadowScreenPos){
@@ -158,27 +159,26 @@ void main() {
 		vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
 		shadow = getShadow(shadowScreenPos);
 	#endif
-	vec3 sunlight;
-	if (texture(colortex13, texcoord) != vec4(0)){
-		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.2, 0.5) * lightmap.g)*clamp(shadow+0.5, 0.0, 1.0);
-	}else{
-		sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g)*shadow;
-	}
+	vec3 sunlight = (sunlightColor * clamp(dot(worldLightVector, normal), 0.0, 0.5) * lightmap.g);
 
-	float shininess = 32;
-	float specmult = 3;
-	#if MATERIAL == 3
-		if (isterrain == true){
-			shininess = texture(colortex5, texcoord).r*128;
-			specmult = texture(colortex5, texcoord).r*16;
-		}
-	#endif
 	vec3 lightDir = worldLightVector;
 	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.5), shininess)*specmult;
+
+	float roughness = pow(1 - texture(colortex5, texcoord).r, 2);
+
+	if (depth != texture(depthtex1, texcoord).r){
+		roughness = 0.1;
+	}
+
+	roughness = (2/roughness)-2;
+	float f0 = texture(colortex5, texcoord).g;
+	float fresnel = dot(f0 + (1 - f0) * (1-dot(viewDir, normal)), 5);
+
+	float spec = pow(max(dot(normal, halfwayDir), 0.5), roughness)*fresnel + 0.25;
 	
-	sunlight = (sunlight + (sunlight*spec)) * SUNBRIGHTNESS;
+	sunlight *= SUNBRIGHTNESS;
+	sunlight *= spec * shadow;
 	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
 	float lightness = skyBrightness;
 	sunlight *= lightness;

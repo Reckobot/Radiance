@@ -117,31 +117,18 @@ void main() {
 				if ((pos.y <= top)&&(pos.y >= bottom)){
 					if (clouddist <= viewdist){
 						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
-						bool doAdd = false;
-						if (e==0){
-							if (pos.y >= bottom+(add*250)){
-								doAdd = true;
-							}
-						}else if (e==(layers)-1){
-							if (pos.y <= top-(add*250)){
-								doAdd = true;
-							}
-						}
-						else{
-							doAdd = true;
-						}
 
-						if (doAdd == true){
-							vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
-							vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
-							addition *= scatter;
+						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
+						vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
+						addition *= scatter;
 
-							if (logicalHeightLimit == 128){
-								addition = fogColor / 8 * add;
-							}else if (logicalHeightLimit == 256){
-								addition = vec3(add);
-							}
-							
+						if (logicalHeightLimit == 128){
+							addition = fogColor / 8 * add;
+						}else if (logicalHeightLimit == 256){
+							addition = vec3(add);
+						}
+						
+						if ((pos.y <= top-(add*2500))&&(pos.y >= bottom+(add*2500))){
 							t += addition;
 						}
 					}
