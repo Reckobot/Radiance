@@ -18,12 +18,6 @@ uniform vec3 shadowLightPosition;
 
 in vec2 texcoord;
 
-float cloudlayer(vec3 pos, int steps, float viewdist, float size){
-	float value = 1/(steps*0.75);
-	vec2 coords = pos.xz/vec2(size, size);
-	return value;
-}
-
 float foglayer(vec3 pos, int steps, float alpha, float viewdist, float size){
 	float value = 1/(steps*0.75);
 	vec2 coords = (pos.xz*vec2(1,2))/vec2(size, size);
@@ -116,7 +110,7 @@ void main() {
 				float bottom = fogbottom+(thickness/2*e);
 				if ((pos.y <= top)&&(pos.y >= bottom)){
 					if (clouddist <= viewdist){
-						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x*fogOpacity, viewdist, gridsize);
+						float add = foglayer(pos+vec3(e*e,0,e*e), steps, texture(noisetex, vec2(pos.x, pos.z)).x, viewdist, gridsize);
 
 						vec3 addition = saturation(fogcolor, 0.5)*(lightness) * add;
 						vec3 scatter = (saturation(sunlightColor, 1.25) * clamp(dot(worldLightVector, normalize(-viewDir)), 0.5, 1.0) * lightmap.g);
@@ -137,6 +131,7 @@ void main() {
 		}
 	}
 	t *= 2;
+	t *= fogOpacity;
 	color.rgb = t;
 
 	#endif
