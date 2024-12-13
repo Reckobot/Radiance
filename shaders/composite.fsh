@@ -1,16 +1,17 @@
 #version 330 compatibility
+#include "/lib/common.glsl"
 #include "/lib/distort.glsl"
 #include "/lib/color.glsl"
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/tonemap.glsl"
 #include "/lib/rt.glsl"
+#include "/lib/brdf.glsl"
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
-uniform sampler2D colortex5;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D colortex11;
@@ -43,12 +44,7 @@ uniform int renderStage;
 in vec2 texcoord;
 in vec3 viewnormal;
 
-const float bias = SHADOWRES*0.00000075;
-
-vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
-	vec4 homPos = projectionMatrix * vec4(position, 1.0);
-	return homPos.xyz / homPos.w;
-}
+const float bias = SHADOWRES*0.0000001;
 
 vec3 getShadow(vec3 shadowScreenPos){
 	float transparentShadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
@@ -105,9 +101,10 @@ vec3 getSoftShadow(vec4 shadowClipPos){
   	return shadowAccum / float(samples);
 }
 
-/* RENDERTARGETS: 0,3 */
+/* RENDERTARGETS: 0,3,14 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 litparts;
+layout(location = 2) out vec4 normalbuffer;
 
 const float sunPathRotation = SUNROTATION;
 
@@ -165,21 +162,14 @@ void main() {
 	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 
-	float roughness = pow(1 - texture(colortex5, texcoord).r, 2);
-
-	if (depth != texture(depthtex1, texcoord).r){
-		roughness = 0.1;
-	}
-
-	roughness = (2/roughness)-2;
-	float f0 = texture(colortex5, texcoord).g;
-	float fresnel = dot(f0 + (1 - f0) * (1-dot(viewDir, normal)), 5);
+	float roughness = getRoughness(texcoord, depthtex1, depth);
+	float fresnel = getFresnel(texcoord, viewDir, normal);
 
 	float spec = pow(max(dot(normal, halfwayDir), 0.5), roughness)*fresnel + 0.25;
 	
 	sunlight *= SUNBRIGHTNESS;
 	sunlight *= spec * shadow;
-	float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
+	float skyBrightness = clamp((rgb2hsv(skyColor.rgb)).z, 0.005, 1.0);
 	float lightness = skyBrightness;
 	sunlight *= lightness;
 	ambient *= lightness;
@@ -195,4 +185,5 @@ void main() {
 	}else{
 		color.rgb *= blocklight + ambient + sunlight;
 	}
+	normalbuffer.rgb = normal;
 }

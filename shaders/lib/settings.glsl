@@ -4,7 +4,7 @@
 #define HQSHADOWS
 #define SHADOWSOFTNESS 1.0 //[0.0 0.125 0.25 0.375 0.5 0.625 0.75 0.875 1.0]
 #define DISTANTFOG
-#define FANCYFOG
+//#define FANCYFOG
 #define MATERIAL 3 //[1 2 3]
 
 //fancy fog stuff
@@ -19,10 +19,10 @@
 //#define SSR
 //#define SSGI
 
-#define FOGRES 1.0 //[0.25 0.5 0.75 1.0]
+#define FOGRES 0.25 //[0.25 0.5 0.75 1.0]
 
-#define SSR_STEPS 32 //[2 4 8 16 32 64 128 192 256 512 1024]
-#define SSR_DIST 0.5 //[0.01 0.02 0.03 0.04 0.05 0.06 0.075 0.08 0.09 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0]
+#define SSR_STEPS 128 //[2 4 8 16 32 64 128 192 256 512 1024]
+#define SSR_DIST 0.15 //[0.01 0.02 0.03 0.04 0.05 0.06 0.075 0.08 0.09 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0]
 #define SSR_RES 1.0 //[0.25 0.5 0.75 1.0]
 
 #define SSGI_STEPS 6 //[2 4 8 12 16 32 64 128 256 512 1024]

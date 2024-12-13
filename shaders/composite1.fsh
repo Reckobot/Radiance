@@ -2,14 +2,15 @@
 #include "/lib/color.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/rt.glsl"
+#include "/lib/brdf.glsl"
 
 uniform sampler2D noisetex;
 uniform sampler2D depthtex0;
 uniform sampler2D colortex0;
 uniform sampler2D colortex2;
-uniform sampler2D colortex5;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
+uniform sampler2D colortex14;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -44,6 +45,7 @@ void main() {
 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
@@ -74,15 +76,23 @@ void main() {
 					newrayPos = rayogPos;
 					rayscreenPos = viewtoscreen(newrayPos);
 					raycoord = rayscreenPos.xy;
-					vec3 sampl = ContrastSaturationBrightness(texture(colortex10, raycoord).rgb, 1.0, 0.7, 1.0);
-					reflection.rgb += sampl.rgb * 8;
+
+					vec3 sampl = texture(colortex0, raycoord).rgb;
+					float fresnel = getFresnel(raycoord, viewDir, texture(colortex14, raycoord).rgb);
+					sampl = mix(texture(colortex0, texcoord).rgb, sampl, clamp(fresnel, 0.0, 1.0));
+
+					reflection.rgb = sampl.rgb;
 					break;
 				}
 			}
 		}
+		float fresnel = clamp(getFresnel(texcoord, viewDir, normal), 0.0, 1.0);
 		if (reflection.rgb == vec3(0)){
-			reflection.rgb = vec3(1);
+			reflection.rgb = calcSkyColor(-viewPos);
+		}else{
+			reflection *= 8;
 		}
+		reflection.rgb = mix(texture(colortex0, texcoord).rgb, reflection.rgb, fresnel);
 	}
 	#endif
 }
