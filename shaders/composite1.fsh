@@ -58,7 +58,7 @@ void main() {
 		vec3 reflectRay = reflect(normalize(viewPos), vnormal);
 		int steps = SSR_STEPS;
 
-		float start = exp(length(viewPos)/12);
+		float start = exp(length(viewPos)/6);
 
 		for (int i = 0; i < steps; i++){
 			vec3 rayPos = viewPos + (reflectRay*SSR_DIST*i);
@@ -71,27 +71,27 @@ void main() {
 			float rayrefl = raypbr.g;
 
 			vec3 newrayPos;
-			if ((distance(rayPos, rayogPos) <= (SSR_DIST))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
+			if ((distance(rayPos, rayogPos) <= (SSR_DIST * 2))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
 				if (distance(rayPos, viewPos) > (SSR_DIST * start)){	
 					newrayPos = rayogPos;
 					rayscreenPos = viewtoscreen(newrayPos);
 					raycoord = rayscreenPos.xy;
 
 					vec3 sampl = texture(colortex0, raycoord).rgb;
-					float fresnel = getFresnel(raycoord, viewDir, texture(colortex14, raycoord).rgb);
-					sampl = mix(texture(colortex0, texcoord).rgb, sampl, clamp(fresnel, 0.0, 1.0));
 
 					reflection.rgb = sampl.rgb;
 					break;
 				}
 			}
+			if (reflection.rgb == vec3(0)){
+				vec3 skyPos = reflectRay;
+				reflection.rgb = calcSkyColor(skyPos);
+				float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
+				float lightness = skyBrightness;
+				reflection = vec4(pow(reflection.rgb, vec3(6.5)), 1) * lightness;
+			}
 		}
 		float fresnel = clamp(getFresnel(texcoord, viewDir, normal), 0.0, 1.0);
-		if (reflection.rgb == vec3(0)){
-			reflection.rgb = calcSkyColor(-viewPos);
-		}else{
-			reflection *= 8;
-		}
 		reflection.rgb = mix(texture(colortex0, texcoord).rgb, reflection.rgb, fresnel);
 	}
 	#endif

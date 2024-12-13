@@ -53,11 +53,11 @@ void main() {
 	#ifdef SSR
 	float refl = texture(colortex5, texcoord).g;
 	if (refl >= 0.1+(230/255)){
-		vec3 reflection = (texture(colortex7, texcoord).rgb);
-		color.rgb *= mix(color.rgb, (reflection), 0.5);
+		vec3 reflection = (texture(colortex7, texcoord).rgb) * 28;
+		color.rgb *= color.rgb + mix(color.rgb, (reflection), 0.25);
 	}else{
 		vec3 reflection = (texture(colortex7, texcoord).rgb);
-		color.rgb += color.rgb * ((reflection/8)*refl);
+		color.rgb += color.rgb * ((reflection)*refl);
 	}
 	#endif
 
