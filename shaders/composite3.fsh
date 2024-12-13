@@ -6,6 +6,7 @@
 #include "/lib/rt.glsl"
 
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D colortex0;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
@@ -42,7 +43,7 @@ void main() {
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
 
-	if (length(viewPos) < (far*SSGI_DIST)){
+	if ((length(viewPos) < (far*SSGI_DIST))&&(depth == texture(depthtex1, texcoord).r)){
 		vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 		vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
 
@@ -105,7 +106,7 @@ void main() {
 			}
 		}
 		average /= samples*steps;
-		average += texture(colortex10, texcoord).rgb/10;
+		average += texture(colortex10, texcoord).rgb/14;
 		average *= 6;
 		color.rgb = average;
 	}

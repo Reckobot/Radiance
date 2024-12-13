@@ -3,6 +3,7 @@
 #include "/lib/tonemap.glsl"
 #include "/lib/dh.glsl"
 #include "/lib/settings.glsl"
+#include "/lib/brdf.glsl"
 
 #define BRIGHTNESS 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.25 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define SATURATION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -14,7 +15,6 @@ uniform sampler2D depthtex1;
 uniform sampler2D colortex0;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
-uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex9;
@@ -53,9 +53,11 @@ void main() {
 	#ifdef SSR
 	float refl = texture(colortex5, texcoord).g;
 	if (refl >= 0.1+(230/255)){
+		vec3 reflection = (texture(colortex7, texcoord).rgb) * 28;
+		color.rgb *= color.rgb + mix(color.rgb, (reflection), 0.25);
+	}else{
 		vec3 reflection = (texture(colortex7, texcoord).rgb);
-		reflection = mix(reflection, color.rgb, 1-clamp(refl, 0.0, 0.5));
-		color.rgb *= reflection;
+		color.rgb += color.rgb * ((reflection)*refl);
 	}
 	#endif
 

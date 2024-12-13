@@ -1,4 +1,5 @@
 #version 330 compatibility
+#include "/lib/color.glsl"
 
 uniform sampler2D gtexture;
 uniform float viewHeight;
@@ -6,6 +7,7 @@ uniform float viewWidth;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
+uniform vec3 skyColor;
 
 uniform float alphaTestRef = 0.1;
 
@@ -31,6 +33,6 @@ void main() {
 		if (color.a < alphaTestRef) {
 			discard;
 		}
-		skybuffer = color;
+		skybuffer = color * clamp(rgb2hsv(skyColor).z, 0.25, 1.0);
 	}
 }

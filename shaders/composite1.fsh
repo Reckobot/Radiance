@@ -2,14 +2,15 @@
 #include "/lib/color.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/rt.glsl"
+#include "/lib/brdf.glsl"
 
 uniform sampler2D noisetex;
 uniform sampler2D depthtex0;
 uniform sampler2D colortex0;
 uniform sampler2D colortex2;
-uniform sampler2D colortex5;
 uniform sampler2D colortex9;
 uniform sampler2D colortex10;
+uniform sampler2D colortex14;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -44,6 +45,7 @@ void main() {
 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
 	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 viewDir = mat3(gbufferModelViewInverse) * -normalize(projectAndDivide(gbufferProjectionInverse, vec3(texcoord.xy, 0) * 2.0 - 1.0));
 
 	vec3 encodedNormal = texture(colortex2, texcoord).rgb;
 	vec3 normal = normalize((encodedNormal - 0.5) * 2.0);
@@ -56,7 +58,7 @@ void main() {
 		vec3 reflectRay = reflect(normalize(viewPos), vnormal);
 		int steps = SSR_STEPS;
 
-		float start = exp(length(viewPos)/12);
+		float start = exp(length(viewPos)/6);
 
 		for (int i = 0; i < steps; i++){
 			vec3 rayPos = viewPos + (reflectRay*SSR_DIST*i);
@@ -69,20 +71,28 @@ void main() {
 			float rayrefl = raypbr.g;
 
 			vec3 newrayPos;
-			if ((distance(rayPos, rayogPos) <= (SSR_DIST))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
+			if ((distance(rayPos, rayogPos) <= (SSR_DIST * 2))&&((lessThanEqual(raycoord, vec2(1,1))==true)&&(greaterThanEqual(raycoord, vec2(0,0))==true))){
 				if (distance(rayPos, viewPos) > (SSR_DIST * start)){	
 					newrayPos = rayogPos;
 					rayscreenPos = viewtoscreen(newrayPos);
 					raycoord = rayscreenPos.xy;
-					vec3 sampl = ContrastSaturationBrightness(texture(colortex10, raycoord).rgb, 1.0, 0.7, 1.0);
-					reflection.rgb += sampl.rgb * 8;
+
+					vec3 sampl = texture(colortex0, raycoord).rgb;
+
+					reflection.rgb = sampl.rgb;
 					break;
 				}
 			}
+			if (reflection.rgb == vec3(0)){
+				vec3 skyPos = reflectRay;
+				reflection.rgb = calcSkyColor(skyPos);
+				float skyBrightness = (rgb2hsv(skyColor.rgb)).z;
+				float lightness = skyBrightness;
+				reflection = vec4(pow(reflection.rgb, vec3(6.5)), 1) * lightness;
+			}
 		}
-		if (reflection.rgb == vec3(0)){
-			reflection.rgb = vec3(1);
-		}
+		float fresnel = clamp(getFresnel(texcoord, viewDir, normal), 0.0, 1.0);
+		reflection.rgb = mix(texture(colortex0, texcoord).rgb, reflection.rgb, fresnel);
 	}
 	#endif
 }
