@@ -4,10 +4,8 @@ out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
-out mat3 tbnmatrix;
 in vec4 at_tangent;
-
-uniform mat4 gbufferModelViewInverse;
+out mat3 tbnmatrix;
 
 void main() {
 	gl_Position = ftransform();

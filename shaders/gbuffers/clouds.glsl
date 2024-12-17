@@ -1,17 +1,9 @@
 #version 330 compatibility
-#include "/lib/dh.glsl"
-#include "/lib/color.glsl"
-#include "/lib/settings.glsl"
 
-uniform sampler2D depthtex0;
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef = 0.1;
-uniform mat4 gbufferProjectionInverse;
-uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -24,5 +16,12 @@ layout(location = 1) out vec4 lightmapData;
 layout(location = 2) out vec4 encodedNormal;
 
 void main() {
-	discard;
+	color = texture(gtexture, texcoord) * glcolor;
+	color *= texture(lightmap, lmcoord);
+    color *= 2;
+	if (color.a < alphaTestRef) {
+		discard;
+	}
+	lightmapData = vec4(lmcoord, 0.0, 1.0);
+	encodedNormal = vec4(0,1,0,0);
 }

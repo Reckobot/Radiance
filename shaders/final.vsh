@@ -1,1 +1,3 @@
-#include "/lib/vertex.glsl"
+#include "/lib/variables/uniforms.glsl"
+
+#include "/vertex/composite.glsl"

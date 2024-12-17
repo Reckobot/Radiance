@@ -1,1 +1,3 @@
-#include "/lib/gbuffer_vertex.glsl"
+#include "/lib/variables/uniforms.glsl"
+
+#include "/vertex/gbuffer.glsl"
