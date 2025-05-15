@@ -16,9 +16,9 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
-	vec3 godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.5);
+	vec3 godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.75);
 	if(isEyeInWater != 0) {
-		godrayColor *= vec3(0.5, 0.75, 1.0);
+		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
@@ -36,10 +36,10 @@ void main() {
 	}
 	godray /= count;
 
-	color.rgb = mix(color.rgb, fog.rgb, fog.a);
 	if(depth < 1.0) {
 		color.rgb = mix(color.rgb, godrayColor, godray);
 	}
+	color.rgb = mix(color.rgb, fog.rgb, fog.a);
 
 	if(isEyeInWater != 0 && depth1 >= 1.0) {
 		color.rgb = mix(color.rgb, mix(texture(colortex7, texcoord).rgb*4, color.rgb, 0.85), getLuminance(texture(colortex7, texcoord).rgb));

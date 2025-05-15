@@ -40,7 +40,7 @@ void main() {
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	float time = clamp(abs(sunAngle - shadowAngle), 0.0, 1.0);
 
-	if((depth < 1.0) && (depth != depth1)) {
+	if(depth < 1.0) {
 		float shading = dot(normal, worldLightVector);
 		shading *= shadow;
 		shading = pow(shading*1.25, 32.0);

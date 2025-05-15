@@ -3,9 +3,13 @@
 #define SHADOW_PIXELATION 16 //[1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192]
 #define GODRAYS
 #define GODRAY_TRANSITION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+#define GODRAY_INTENSITY 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
+#define GODRAY_MINIMUM 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
 
 const int shadowMapResolution = 2048;
 
+uniform mat4 gbufferProjection;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
@@ -26,6 +30,7 @@ uniform float viewHeight;
 uniform ivec2 eyeBrightness;
 uniform float frameTime;
 uniform vec3 playerLookVector;
+uniform float rainStrength;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -37,7 +42,7 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
     distortionFactor += 0.1;
 
     shadowClipPos.xy /= distortionFactor;
-    shadowClipPos.z *= 0.5;
+    shadowClipPos.z *= 0.25;
     return shadowClipPos;
 }
 

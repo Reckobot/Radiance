@@ -43,22 +43,24 @@ void main() {
 	vec3 camShadowScreen = viewToShadowScreen(centercamviewPos, false, depth, depth1, normal, true);
 	vec3 camLook = normalize(camviewPos);
 
-	float lookModifier = dot(playerLookVector, mat3(gbufferModelViewInverse) * normalize(sunPosition))-0.5;
+	float lookModifier = dot(playerLookVector, mat3(gbufferModelViewInverse) * normalize(sunPosition))-0.75;
 	lookModifier = clamp(lookModifier*8, 1.0, 10.0);
 
 	#ifdef GODRAYS
 	float godray = 0.0;
 	int stepCount = 32;
-	
-	if(depth < 1) {
 		if(texture(colortex2, texcoord).rgb != vec3(1.0)) {
-			for(int i = 0; i < stepCount; i++) {
-				vec3 ray = camNDCPos + (camLook*i/2*IGN(texcoord, frameCounter, vec2(viewWidth, viewHeight)));
+			for(int i = 1; i < 1+stepCount; i++) {
+				vec3 ray = camNDCPos + (camLook*i*IGN(texcoord, frameCounter, vec2(viewWidth, viewHeight)));
 				bool pixelate = false;
 				vec3 rayShadowScreen = viewToShadowScreen(ray, pixelate, depth, depth1, normal, true);
 
 				if(ray.z > viewPos.z) {
-					godray += step(rayShadowScreen.z, texture(shadowtex0, rayShadowScreen.xy).r)/(stepCount);
+					if(isEyeInWater == 0) {
+						godray += step(rayShadowScreen.z, texture(shadowtex0, rayShadowScreen.xy).r)/(stepCount);
+					} else {
+						godray += (step(rayShadowScreen.z, texture(shadowtex0, rayShadowScreen.xy).r)/(stepCount))-(step(rayShadowScreen.z, texture(shadowtex0, rayShadowScreen.xy).r)/(stepCount)/2);
+					}
 				}
 			}
 
@@ -66,35 +68,39 @@ void main() {
 			modifier = 1-modifier;
 
 			if(isEyeInWater == 0) {
-				godRayMult += ((modifier-0.5)*2.0)*((frameTime*0.00025)*GODRAY_TRANSITION);
-				godRayMult = clamp(godRayMult, 0.125, 1.0);
+				godRayMult += ((modifier-0.5)*2.0)*((frameTime*0.00005)*GODRAY_TRANSITION);
+				godRayMult = clamp(godRayMult, 0.125*GODRAY_MINIMUM, 1.0);
 
-				godrayBuffer = vec4(clamp((godray*godRayMult*lookModifier), 0.0, 0.5));
+				godrayBuffer = vec4(clamp((godray*godRayMult*lookModifier), 0.0, 0.375*GODRAY_INTENSITY));
 			} else {
-				godRayMult += ((modifier-0.5)*2.0)*((frameTime*0.00025)*GODRAY_TRANSITION);
-				godRayMult = clamp(godRayMult, 0.125, 1.0);
+				godRayMult += ((modifier-0.5)*2.0)*((frameTime*0.00005)*GODRAY_TRANSITION);
+				godRayMult = clamp(godRayMult, 0.125*GODRAY_MINIMUM, 1.0);
 
-				godrayBuffer = vec4(clamp((godray*godRayMult*8), 0.0, 0.75));
+				godrayBuffer = vec4(clamp((godray*godRayMult*12)+0.125, 0.0, 0.75*GODRAY_INTENSITY));
 			}
 		} else {
-			godrayBuffer = vec4(clamp(godRayMult*lookModifier, 0.0, 0.5));
+			godrayBuffer = vec4(clamp(godRayMult*lookModifier, 0.0, 0.375*GODRAY_INTENSITY));
 		}
-	} else {
-		godrayBuffer = vec4(clamp(godRayMult*lookModifier, 0.0, 0.5));
-	}
 	#endif
 
 	float dist = length(viewPos) / far;
 	if(texture(colortex2, texcoord).rgb == vec3(1.0)) {
 		dist /= 3;
 	}
+
+	dist *= 1+rainStrength;
+
 	float fogFactor = exp(-4 * (0.85 - dist));
 
 	if(depth < 1.0) {
-		fogBuffer = vec4(texture(colortex1, texcoord).rgb, clamp(fogFactor, 0.0, 1.0));
+		if(isEyeInWater != 1) {
+			fogBuffer = vec4(texture(colortex1, texcoord).rgb, clamp(fogFactor, 0.0, 1.0));
+		} else {
+			fogBuffer = vec4(pow(vec3(0.5, 0.75, 1.0), vec3(1.35))*0.825*(getLuminance(skyColor)+0.125), clamp(fogFactor, 0.0, 1.0));
+		}
 	}
 
 	if(depth1 >= 1.0 && isEyeInWater == 1) {
-		color.rgb = pow(skyColor, vec3(1.0))*0.85;
+		color.rgb = pow(skyColor, vec3(1.1))*0.65;
 	}
 }
