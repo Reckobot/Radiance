@@ -38,7 +38,9 @@ void main() {
 
 	vec3 centercamNDCPos = vec3(vec2(0.5, 0.5), 0.0) * 2.0 - 1.0;
 	vec3 centercamviewPos = projectAndDivide(gbufferProjectionInverse, centercamNDCPos);
-	centercamviewPos.y += 0.5;
+	vec3 centercamworldPos = (gbufferModelViewInverse * vec4(centercamviewPos, 1.0)).xyz;
+	centercamworldPos.y += 0.5;
+	centercamviewPos = (gbufferModelView * vec4(centercamworldPos, 1.0)).xyz;
 
 	vec3 camShadowScreen = viewToShadowScreen(centercamviewPos, false, depth, depth1, normal, true);
 	vec3 camLook = normalize(camviewPos);
