@@ -1,12 +1,9 @@
 #version 330 compatibility
+#include "/lib/common.glsl"
 
 uniform int renderStage;
-uniform float viewHeight;
-uniform float viewWidth;
 uniform mat4 gbufferModelView;
-uniform mat4 gbufferProjectionInverse;
 uniform vec3 fogColor;
-uniform vec3 skyColor;
 
 in vec4 glcolor;
 
@@ -16,7 +13,7 @@ float fogify(float x, float w) {
 
 vec3 calcSkyColor(vec3 pos) {
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(pow(skyColor, vec3(2.0))*0.375, fogColor*vec3(1.2,0.9,0.75), fogify(max(upDot, 0.0), 0.35)-0.05);
+	return mix(pow(skyColor, vec3(1.125))*0.5, fogColor*vec3(1.2,0.9,0.65)*1.25, fogify(max(upDot, 0.0), 0.35)-0.05);
 }
 
 vec3 screenToView(vec3 screenPos) {

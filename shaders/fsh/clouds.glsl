@@ -19,9 +19,8 @@ layout(location = 3) out vec4 lightBuffer;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
-	lightBuffer = texture(lightmap, lmcoord);
-	lightBuffer.a = 1.0;
-	lightBuffer.rg *= 0.475;
+	lightBuffer = vec4(lmcoord, 0.0, 1.0);
+	lightBuffer.r = 0.0;
 	if (color.a < alphaTestRef) {
 		discard;
 	}
