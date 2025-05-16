@@ -5,6 +5,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
+uniform sampler2D colortex8;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D shadowtex0;
@@ -32,6 +33,10 @@ void main() {
 	if(dot(normal, vec3(ivec3(normal))) > 0.9) {
 		pixelate = true;
 	}
+	if(texture(colortex8, texcoord).rgb != 0.0) {
+		pixelate = false;
+	}
+
 	vec3 shadowScreenPos = viewToShadowScreen(viewPos, pixelate, depth, depth1, normal, false);
 
 	float shadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
