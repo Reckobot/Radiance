@@ -37,7 +37,9 @@ void main() {
 		pixelate = false;
 	}
 
-	vec3 shadowScreenPos = viewToShadowScreen(viewPos, pixelate, depth, depth1, normal, false);
+	bool notBlock = false;
+	notBlock = bool(int(texture(colortex8, texcoord).r));
+	vec3 shadowScreenPos = viewToShadowScreen(viewPos, pixelate, depth, depth1, normal, false, notBlock);
 
 	float shadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
 
@@ -47,8 +49,10 @@ void main() {
 
 	if(depth < 1.0) {
 		float shading = dot(normal, worldLightVector);
-		shading *= shadow;
-		shading = pow(shading*1.25, 32.0);
+		if(shading > 0.85) {
+			shading *= shadow;
+		}
+		shading = pow(shading*1.125, 8.0);
 		shading = clamp(shading, ambient, 1.0);
 
 		vec3 sunLighting = mix(vec3(0.75,0.9,1.0)*0.5, mix(vec3(1.0,0.9,0.75)*1.25, vec3(0.5,0.75,1.0)*4.0, time), shading);

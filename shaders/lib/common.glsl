@@ -46,12 +46,16 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
     return shadowClipPos;
 }
 
-vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, vec3 normal, bool isGodRays) {
+vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, vec3 normal, bool isGodRays, bool notBlock) {
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	if(!isGodRays) {
-        feetPlayerPos += normal*0.02;
+        float normalOffet = 0.05;
+        if(notBlock) {
+            normalOffet = 0.15;
+        }
+        feetPlayerPos += ((normal-0.5)/0.5)*normalOffet;
     }
-	if(pixelate) {
+    if(pixelate) {
 		feetPlayerPos += cameraPosition;
         float pixelation = SHADOW_PIXELATION;
         if(isGodRays && pixelation >= 4) {
@@ -64,9 +68,9 @@ vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, 
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
 	float bias = 0.00025;
-	if(depth != depth1) {
-		bias *= 2.0;
-	}
+    if(notBlock) {
+        bias *= 4.0;
+    }
 	shadowClipPos.z -= bias;
 	shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz);
 	vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
