@@ -1,5 +1,5 @@
 #define RADIANCE 0 //[0]
-#define AMBIENT 0.5 //[0.0 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
+#define AMBIENT 0.25 //[0.0 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
 #define SHADOW_PIXELATION 16 //[1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192]
 #define GODRAYS
 #define GODRAY_TRANSITION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
@@ -8,6 +8,7 @@
 #define FOG
 
 const int shadowMapResolution = 2048;
+const float sunPathRotation = 45.0;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelView;
@@ -32,6 +33,7 @@ uniform ivec2 eyeBrightness;
 uniform float frameTime;
 uniform vec3 playerLookVector;
 uniform float rainStrength;
+uniform float screenBrightness;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -50,9 +52,9 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
 vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, vec3 normal, bool isGodRays, bool notBlock) {
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	if(!isGodRays) {
-        float normalOffet = 0.05;
+        float normalOffet = 0.075;
         if(notBlock) {
-            normalOffet = 0.15;
+            normalOffet *= 3;
         }
         feetPlayerPos += ((normal-0.5)/0.5)*normalOffet;
     }

@@ -5,6 +5,9 @@ out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
+in vec2 mc_Entity;
+
+flat out int isGrass;
 
 void main() {
 	gl_Position = ftransform();
@@ -14,4 +17,10 @@ void main() {
 	glcolor = gl_Color;
 	normal = gl_NormalMatrix * gl_Normal;
 	normal = mat3(gbufferModelViewInverse) * normal;
+
+	if(mc_Entity.x == 102) {
+		isGrass = 1;
+	} else {
+		isGrass = 0;
+	}
 }
