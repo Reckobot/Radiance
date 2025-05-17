@@ -20,17 +20,20 @@ void main() {
 		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}
 	float depth = texture(depthtex0, texcoord).r;
-	vec4 fog = texture(colortex6, texcoord);
+
+	if(depth >= 1.0) {
+		#ifdef DISTANT_HORIZONS
+			depth = texture(dhDepthTex0, texcoord).r;
+		#endif
+	}
 
 	float godray = 0.0;
 	int count = 1;
 	int radius = 4;
 	for(int x = -radius; x <= radius; x++) {
-		if(texture(depthtex0, texcoord+vec2(x/viewWidth, 0.0)).r < 1.0) {
 			float sample = texture(colortex5, texcoord+vec2(x/viewWidth, 0.0)).r;
 			godray += sample;
 			count++;
-		}
 	}
 	godray /= count;
 

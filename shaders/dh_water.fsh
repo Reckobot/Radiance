@@ -3,7 +3,7 @@
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
-uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 uniform float alphaTestRef = 0.1;
 
@@ -20,7 +20,13 @@ layout(location = 3) out vec4 cloudBuffer;
 layout(location = 4) out vec4 nonBlockBuffer;
 
 void main() {
+	float depth = texture(depthtex1, vec2(gl_FragCoord.xy)/vec2(viewWidth,viewHeight)).r;
+	if (depth < 1.0){
+		discard;
+	}
+
 	color = texture(gtexture, texcoord) * glcolor;
+	color.rgb *= 0.85;
 	lightBuffer = vec4(lmcoord, 0.0, 1.0);
 	if (color.a < alphaTestRef) {
 		discard;
@@ -32,19 +38,5 @@ void main() {
 
 	normalBuffer = vec4(finalNormal, 1.0);
 	cloudBuffer = vec4(vec3(0.0), 1.0);
-	nonBlockBuffer = vec4(vec3(0.0), 1.0);
-
-	vec2 screenTexCoord = vec2(gl_FragCoord.xy)/vec2(viewWidth,viewHeight);
-
-	float depth = texture(depthtex0, screenTexCoord).r;
-	vec3 NDCPos = vec3(screenTexCoord.xy, depth) * 2.0 - 1.0;
-	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
-
-	float dhdepth = texture(dhDepthTex0, screenTexCoord).r;
-	vec3 dhNDCPos = vec3(screenTexCoord.xy, dhdepth) * 2.0 - 1.0;
-	vec3 dhviewPos = projectAndDivide(dhProjectionInverse, dhNDCPos);
-
-	if(((length(dhviewPos) < length(viewPos))&&(depth >= 1.0))&&(isEyeInWater != 1)) {
-		discard;
-	}
+	nonBlockBuffer = vec4(1.0);
 }

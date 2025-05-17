@@ -27,17 +27,28 @@ void main() {
 
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
+
+	mat4 projectionInverse = gbufferProjectionInverse;
+
+	if(depth >= 1.0) {
+		#ifdef DISTANT_HORIZONS
+			depth = texture(dhDepthTex0, texcoord).r;
+			depth1 = texture(dhDepthTex1, texcoord).r;
+			projectionInverse = dhProjectionInverse;
+		#endif
+	}
+	
 	vec3 light = texture(colortex4, texcoord).rgb;
 	vec3 normal = texture(colortex3, texcoord).rgb;
 
 	vec3 NDCPos = vec3(texcoord.xy, depth) * 2.0 - 1.0;
-	vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
+	vec3 viewPos = projectAndDivide(projectionInverse, NDCPos);
 
 	vec3 camNDCPos = vec3(texcoord.xy, 0.0) * 2.0 - 1.0;
-	vec3 camviewPos = projectAndDivide(gbufferProjectionInverse, camNDCPos);
+	vec3 camviewPos = projectAndDivide(projectionInverse, camNDCPos);
 
 	vec3 centercamNDCPos = vec3(vec2(0.5, 0.5), 0.0) * 2.0 - 1.0;
-	vec3 centercamviewPos = projectAndDivide(gbufferProjectionInverse, centercamNDCPos);
+	vec3 centercamviewPos = projectAndDivide(projectionInverse, centercamNDCPos);
 	vec3 centercamworldPos = (gbufferModelViewInverse * vec4(centercamviewPos, 1.0)).xyz;
 	centercamworldPos.y += 0.5;
 	centercamviewPos = (gbufferModelView * vec4(centercamworldPos, 1.0)).xyz;
@@ -51,7 +62,6 @@ void main() {
 	#ifdef GODRAYS
 	float godray = 0.0;
 	int stepCount = 32;
-		if(texture(colortex2, texcoord).rgb != vec3(1.0)) {
 			for(int i = 1; i < 1+stepCount; i++) {
 				vec3 ray = camNDCPos + (camLook*i*IGN(texcoord, frameCounter, vec2(viewWidth, viewHeight)));
 				bool pixelate = false;
@@ -80,19 +90,29 @@ void main() {
 
 				godrayBuffer = vec4(clamp((godray*godRayMult*12)+0.125, 0.0, 0.75*GODRAY_INTENSITY));
 			}
-		} else {
-			godrayBuffer = vec4(clamp(godRayMult*lookModifier, 0.0, 0.375*GODRAY_INTENSITY));
-		}
 	#endif
 
-	float dist = length(viewPos) / far;
-	if(texture(colortex2, texcoord).rgb == vec3(1.0)) {
-		dist /= 3;
-	}
+	float dist;
+	float fogFactor;
+	#ifndef DISTANT_HORIZONS
+		dist = length(viewPos) / far;
 
-	dist *= 1+rainStrength;
+		if(texture(colortex2, texcoord).rgb == vec3(1.0)) {
+			dist /= 3;
+		}
 
-	float fogFactor = exp(-4 * (0.85 - dist));
+		dist *= 1+rainStrength;
+
+		float density = 5;
+		fogFactor = exp(-density * (0.85 - dist));
+	#else
+		if(isEyeInWater != 1) {
+			dist = length(viewPos) / dhRenderDistance;
+		} else {
+			dist = length(viewPos) / far;
+		}
+		fogFactor = pow(dist, 0.75);
+	#endif
 
 	if(depth < 1.0) {
 		if(isEyeInWater != 1) {
@@ -102,7 +122,7 @@ void main() {
 		}
 	}
 
-	if(depth1 >= 1.0 && isEyeInWater == 1) {
-		color.rgb = pow(skyColor, vec3(1.1))*0.65;
+	if(texture(depthtex0, texcoord).r >= 1.0 && isEyeInWater == 1) {
+		color.rgb = pow(skyColor, vec3(1.5))*0.75;
 	}
 }

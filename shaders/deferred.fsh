@@ -21,6 +21,14 @@ void main() {
 	color = texture(colortex0, texcoord);
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
+
+	if(depth >= 1.0) {
+		#ifdef DISTANT_HORIZONS
+			depth = texture(dhDepthTex0, texcoord).r;
+			depth1 = texture(dhDepthTex1, texcoord).r;
+		#endif
+	}
+
 	vec4 light = texture(colortex4, texcoord);
 
 	vec3 normal = texture(colortex3, texcoord).rgb;
@@ -49,13 +57,13 @@ void main() {
 
 	if(depth < 1.0) {
 		float shading = dot(normal, worldLightVector);
-		if(shading > 0.85) {
+		if((shading > 0.85) && (depth == texture(depthtex0, texcoord).r)) {
 			shading *= shadow;
 		}
 		shading = pow(shading*1.125, 8.0);
-		shading = clamp(shading, ambient, 1.0);
+		shading = clamp(shading, 0.0, 1.0);
 
-		vec3 sunLighting = mix(vec3(0.75,0.9,1.0)*0.5, mix(vec3(1.0,0.9,0.75)*1.25, vec3(0.5,0.75,1.0)*4.0, time), shading);
+		vec3 sunLighting = mix(vec3(0.75,0.9,1.0)*ambient, mix(vec3(1.0,0.9,0.75)*1.25, vec3(0.5,0.75,1.0)*4.0, time), shading);
 		sunLighting *= clamp(1-(time*1.75), 0.0, 1.0);
 		sunLighting *= light.g;
 		sunLighting *= 1-(rainStrength/1.25);

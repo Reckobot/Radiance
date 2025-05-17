@@ -22,24 +22,30 @@ void main() {
 	}
 	float depth = texture(depthtex0, texcoord).r;
 	float depth1 = texture(depthtex1, texcoord).r;
+
+	if(depth >= 1.0) {
+		#ifdef DISTANT_HORIZONS
+			depth = texture(dhDepthTex0, texcoord).r;
+			depth1 = texture(dhDepthTex1, texcoord).r;
+		#endif
+	}
+	
 	vec4 fog = texture(colortex6, texcoord);
 
 	float godray = 0.0;
 	int count = 1;
 	int radius = 4;
 	for(int y = -radius; y <= radius; y++) {
-		if(texture(depthtex0, texcoord+vec2(0.0, y/viewHeight)).r < 1.0) {
 			float sample = texture(colortex5, texcoord+vec2(0.0, y/viewHeight)).r;
 			godray += sample;
 			count++;
-		}
 	}
 	godray /= count;
 
-	if(depth < 1.0) {
-		color.rgb = mix(color.rgb, godrayColor, godray);
-	}
-	color.rgb = mix(color.rgb, fog.rgb, fog.a);
+	#ifdef FOG
+		color.rgb = mix(color.rgb, fog.rgb, fog.a);
+	#endif
+	color.rgb = mix(color.rgb, godrayColor, godray);
 
 	if(isEyeInWater != 0 && depth1 >= 1.0) {
 		color.rgb = mix(color.rgb, mix(texture(colortex7, texcoord).rgb*4, color.rgb, 0.85), getLuminance(texture(colortex7, texcoord).rgb));

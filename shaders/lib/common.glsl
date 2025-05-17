@@ -1,10 +1,11 @@
 #define RADIANCE 0 //[0]
-#define AMBIENT 0.25 //[0.0 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
+#define AMBIENT 0.5 //[0.0 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
 #define SHADOW_PIXELATION 16 //[1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192]
 #define GODRAYS
 #define GODRAY_TRANSITION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
 #define GODRAY_INTENSITY 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
 #define GODRAY_MINIMUM 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
+#define FOG
 
 const int shadowMapResolution = 2048;
 
@@ -89,3 +90,10 @@ float IGN(vec2 coord, int frame, vec2 res)
     float y = float(coord.y * res.y) + 5.588238 * float(frame);
     return mod(52.9829189 * mod(0.06711056*float(x) + 0.00583715*float(y), 1.0), 1.0);
 }
+
+uniform sampler2D dhDepthTex0;
+uniform sampler2D dhDepthTex1;
+uniform mat4 dhProjection;
+uniform mat4 dhProjectionInverse;
+uniform mat4 dhPreviousProjection;
+uniform int dhRenderDistance;
