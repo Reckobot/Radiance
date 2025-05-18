@@ -6,6 +6,8 @@ out vec2 texcoord;
 out vec4 glcolor;
 out vec3 normal;
 
+flat out int isLeaves;
+
 void main() {
 	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -14,4 +16,10 @@ void main() {
 	glcolor = gl_Color;
 	normal = gl_NormalMatrix * gl_Normal;
 	normal = mat3(gbufferModelViewInverse) * normal;
+
+	if((dhMaterialId == DH_BLOCK_LEAVES)) {
+		isLeaves = 1;
+	} else {
+		isLeaves = 0;
+	}
 }

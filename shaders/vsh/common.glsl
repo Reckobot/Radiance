@@ -8,6 +8,7 @@ out vec3 normal;
 in vec2 mc_Entity;
 
 flat out int isGrass;
+flat out int isFoliage;
 
 void main() {
 	gl_Position = ftransform();
@@ -22,5 +23,11 @@ void main() {
 		isGrass = 1;
 	} else {
 		isGrass = 0;
+	}
+
+	if(mc_Entity.x == 100 || mc_Entity.x == 101 || mc_Entity.x == 102) {
+		isFoliage = 1;
+	} else {
+		isFoliage = 0;
 	}
 }

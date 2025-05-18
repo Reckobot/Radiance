@@ -61,7 +61,7 @@ void main() {
 
 	#ifdef GODRAYS
 	float godray = 0.0;
-	int stepCount = 32;
+	int stepCount = 16;
 			for(int i = 1; i < 1+stepCount; i++) {
 				vec3 ray = camNDCPos + (camLook*i*IGN(texcoord, frameCounter, vec2(viewWidth, viewHeight)));
 				bool pixelate = false;

@@ -11,6 +11,9 @@ in vec2 texcoord;
 in vec4 glcolor;
 in vec3 normal;
 
+flat in int isLeaves;
+flat in int isGround;
+
 /* RENDERTARGETS: 0,3,4,2,8 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 normalBuffer;
@@ -32,4 +35,16 @@ void main() {
 	normalBuffer = vec4(finalNormal, 1.0);
 	cloudBuffer = vec4(vec3(0.0), 1.0);
 	nonBlockBuffer = vec4(1.0);
+
+	#ifdef ALPHA_FOLIAGE
+		if(bool(isLeaves)) {
+			if(getLuminance(color.rgb) < 0.625) {
+				color.rgb = (getLuminance(color.rgb)*3.0) * vec3( 0.4431, 0.6941, 0.2784);
+			}
+		} else {
+			if(getLuminance(color.rgb) < 0.4) {
+				color.rgb = (getLuminance(color.rgb)*2.0) * vec3( 0.4431, 0.6941, 0.2784);
+			}
+		}
+	#endif
 }

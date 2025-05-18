@@ -12,6 +12,7 @@ in vec4 glcolor;
 in vec3 normal;
 
 flat in int isGrass;
+flat in int isFoliage;
 
 /* RENDERTARGETS: 0,3,4,2,8,9 */
 layout(location = 0) out vec4 color;
@@ -36,4 +37,10 @@ void main() {
 	cloudBuffer = vec4(vec3(0.0), 1.0);
 	nonBlockBuffer = vec4(vec3(0.0), 1.0);
 	grassBuffer = vec4(vec3(isGrass), 1.0);
+
+	#ifdef ALPHA_FOLIAGE
+		if(bool(isFoliage) && ((glcolor.r + glcolor.g + glcolor.b)/3 < 0.9)) {
+			color.rgb = (getLuminance(color.rgb)*2.25) * vec3( 0.4431, 0.6941, 0.2784);
+		}
+	#endif
 }

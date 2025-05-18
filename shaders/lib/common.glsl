@@ -6,13 +6,20 @@
 #define GODRAY_INTENSITY 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
 #define GODRAY_MINIMUM 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
 #define FOG
+#define SUN_ROTATION 45.0 //[-45.0 -30.0 -15.0 0.0 15.0 30.0 45.0]
+#define GAMMA 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define BRIGHTNESS 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define SATURATION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define CONTRAST 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
-#define SHADOW_RESOLUTION 4096 //[128 256 512 1024 2048 4096 8192 16384]
+//#define ALPHA_FOLIAGE
+
+#define SHADOW_RESOLUTION 2048 //[128 256 512 1024 2048 4096 8192 16384]
 #define SHADOW_DISTANCE 100 //[100 200 300 400 500 600 700 800 900 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000]
 
 const int shadowMapResolution = SHADOW_RESOLUTION;
 const int shadowDistance = SHADOW_DISTANCE;
-const float sunPathRotation = 45.0;
+const float sunPathRotation = SUN_ROTATION;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelView;
@@ -102,4 +109,21 @@ float IGN(vec2 coord, int frame, vec2 res)
     float x = float(coord.x * res.x) + 5.588238 * float(frame);
     float y = float(coord.y * res.y) + 5.588238 * float(frame);
     return mod(52.9829189 * mod(0.06711056*float(x) + 0.00583715*float(y), 1.0), 1.0);
+}
+
+vec3 BSC(vec3 color, float brt, float sat, float con)
+{
+	const float AvgLumR = 0.5;
+	const float AvgLumG = 0.5;
+	const float AvgLumB = 0.5;
+	
+	const vec3 LumCoeff = vec3(0.2125, 0.7154, 0.0721);
+	
+	vec3 AvgLumin  = vec3(AvgLumR, AvgLumG, AvgLumB);
+	vec3 brtColor  = color * brt;
+	vec3 intensity = vec3(dot(brtColor, LumCoeff));
+	vec3 satColor  = mix(intensity, brtColor, sat);
+	vec3 conColor  = mix(AvgLumin, satColor, con);
+	
+	return conColor;
 }

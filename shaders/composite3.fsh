@@ -50,4 +50,7 @@ void main() {
 	if(isEyeInWater != 0 && depth1 >= 1.0) {
 		color.rgb = mix(color.rgb, mix(texture(colortex7, texcoord).rgb*4, color.rgb, 0.85), getLuminance(texture(colortex7, texcoord).rgb));
 	}
+
+	color.rgb = BSC(color.rgb, BRIGHTNESS, SATURATION, CONTRAST);
+	color.rgb = pow(color.rgb, vec3(GAMMA));
 }
