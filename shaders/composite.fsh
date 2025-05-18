@@ -45,13 +45,13 @@ void main() {
 	if(dot(normal, vec3(ivec3(normal))) > 0.9) {
 		pixelate = true;
 	}
-	if(texture(colortex8, texcoord).rgb != 0.0) {
+	if(texture(colortex8, texcoord).rgb != vec3(0.0)) {
 		pixelate = false;
 	}
 
 	bool notBlock = false;
 	notBlock = bool(int(texture(colortex8, texcoord).r));
-	vec3 shadowScreenPos = viewToShadowScreen(viewPos, pixelate, depth, depth1, normal, false, notBlock);
+	vec3 shadowScreenPos = viewToShadowScreen(viewPos, pixelate, depth, depth1, normal, false, notBlock, texcoord);
 
 	float shadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
 
@@ -80,7 +80,7 @@ void main() {
 		shading = clamp((shading+1), 0.0, 1.0);
 		shading *= dot(normal, worldLightVector)*8;
 
-		if(((shading > 0) && (depth == texture(depthtex0, texcoord).r))) {
+		if((shading > 0)&&(depth != texture(dhDepthTex0, texcoord).r)) {
 			shading *= shadow;
 		}
 		shading = clamp(shading, 0.0, 1.0);

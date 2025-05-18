@@ -53,7 +53,7 @@ void main() {
 	centercamworldPos.y += 0.5;
 	centercamviewPos = (gbufferModelView * vec4(centercamworldPos, 1.0)).xyz;
 
-	vec3 camShadowScreen = viewToShadowScreen(centercamviewPos, false, depth, depth1, normal, true, false);
+	vec3 camShadowScreen = viewToShadowScreen(centercamviewPos, false, depth, depth1, normal, true, false, texcoord);
 	vec3 camLook = normalize(camviewPos);
 
 	float lookModifier = dot(playerLookVector, mat3(gbufferModelViewInverse) * normalize(sunPosition))-0.75;
@@ -65,7 +65,7 @@ void main() {
 			for(int i = 1; i < 1+stepCount; i++) {
 				vec3 ray = camNDCPos + (camLook*i*IGN(texcoord, frameCounter, vec2(viewWidth, viewHeight)));
 				bool pixelate = false;
-				vec3 rayShadowScreen = viewToShadowScreen(ray, pixelate, depth, depth1, normal, true, false);
+				vec3 rayShadowScreen = viewToShadowScreen(ray, pixelate, depth, depth1, normal, true, false, texcoord);
 
 				if(ray.z > viewPos.z) {
 					if(isEyeInWater == 0) {
