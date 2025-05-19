@@ -29,6 +29,9 @@ void main() {
 		#ifdef DISTANT_HORIZONS
 			depth = texture(dhDepthTex0, texcoord).r;
 			depth1 = texture(dhDepthTex1, texcoord).r;
+			if(depth1 == 0.0) {
+				depth1 = depth;
+			}
 			projectionInverse = dhProjectionInverse;
 		#endif
 	}
@@ -75,7 +78,7 @@ void main() {
 	time *= 3.0;
 	time = clamp(time, 0.0, 1.0);
 
-	if(depth < 1 && depth != depth1) {
+	if(depth != depth1) {
 		float shading = dot(normal, worldLightVector);
 		shading = clamp((shading+1), 0.0, 1.0);
 		shading *= dot(normal, worldLightVector)*8;

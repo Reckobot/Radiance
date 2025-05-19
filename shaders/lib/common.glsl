@@ -11,10 +11,11 @@
 #define BRIGHTNESS 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define SATURATION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define CONTRAST 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define PIXELATE_SHADOWS
 
 //#define ALPHA_FOLIAGE
 
-#define SHADOW_RESOLUTION 2048 //[128 256 512 1024 2048 4096 8192 16384]
+#define SHADOW_RESOLUTION 4096 //[128 256 512 1024 2048 4096 8192 16384]
 #define SHADOW_DISTANCE 100 //[100 200 300 400 500 600 700 800 900 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000]
 
 const int shadowMapResolution = SHADOW_RESOLUTION;
@@ -52,6 +53,7 @@ uniform mat4 dhProjection;
 uniform mat4 dhProjectionInverse;
 uniform mat4 dhPreviousProjection;
 uniform int dhRenderDistance;
+uniform float dhFarPlane;
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);
@@ -76,16 +78,18 @@ vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, 
         }
         feetPlayerPos += ((normal-0.5)/0.5)*normalOffet;
     }
-    if((pixelate)&&(depth != texture(dhDepthTex0, texcoord).r)) {
-		feetPlayerPos += cameraPosition;
-        float pixelation = SHADOW_PIXELATION;
-        if(isGodRays && pixelation >= 4) {
-            pixelation /= 4;
+    #ifdef PIXELATE_SHADOWS
+        if((pixelate)&&(depth != texture(dhDepthTex0, texcoord).r)) {
+            feetPlayerPos += cameraPosition;
+            float pixelation = SHADOW_PIXELATION;
+            if(isGodRays && pixelation >= 4) {
+                pixelation /= 4;
+            }
+            feetPlayerPos *= pixelation;
+            feetPlayerPos = vec3(ivec3(feetPlayerPos))/pixelation;
+            feetPlayerPos -= cameraPosition;
         }
-		feetPlayerPos *= pixelation;
-		feetPlayerPos = vec3(ivec3(feetPlayerPos))/pixelation;
-		feetPlayerPos -= cameraPosition;
-	}
+    #endif
 	vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
 	vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
 	float bias = clamp(length(viewPos)*0.000075, 0.0001, 1.0);

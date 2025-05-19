@@ -13,6 +13,7 @@ in vec3 normal;
 
 flat in int isLeaves;
 flat in int isGround;
+flat in int isWater;
 
 /* RENDERTARGETS: 0,3,4,2,8 */
 layout(location = 0) out vec4 color;
@@ -37,13 +38,23 @@ void main() {
 	nonBlockBuffer = vec4(1.0);
 
 	#ifdef ALPHA_FOLIAGE
-		if(bool(isLeaves)) {
-			if(getLuminance(color.rgb) < 0.625) {
-				color.rgb = (getLuminance(color.rgb)*3.0) * vec3( 0.4431, 0.6941, 0.2784);
+		if(!bool(isWater)) {
+			if(bool(isLeaves)) {
+				if(getLuminance(color.rgb) < 0.625) {
+					color.rgb = (getLuminance(color.rgb)*2.825) * vec3( 0.4431, 0.6941, 0.2784);
+				}
+			} else {
+				if(getLuminance(color.rgb) < 0.4) {
+					color.rgb = (getLuminance(color.rgb)*2.125) * vec3( 0.4431, 0.6941, 0.2784);
+				}
 			}
-		} else {
-			if(getLuminance(color.rgb) < 0.4) {
-				color.rgb = (getLuminance(color.rgb)*2.0) * vec3( 0.4431, 0.6941, 0.2784);
+		}
+	#else
+		if(!bool(isWater)) {
+			if(bool(isLeaves)) {
+				color.rgb *= 1.125;
+			} else {
+				color.rgb *= 0.975;
 			}
 		}
 	#endif

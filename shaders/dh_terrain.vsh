@@ -7,6 +7,7 @@ out vec4 glcolor;
 out vec3 normal;
 
 flat out int isLeaves;
+flat out int isWater;
 
 void main() {
 	gl_Position = ftransform();
@@ -21,5 +22,10 @@ void main() {
 		isLeaves = 1;
 	} else {
 		isLeaves = 0;
+	}
+	if((dhMaterialId == DH_BLOCK_WATER)) {
+		isWater = 1;
+	} else {
+		isWater = 0;
 	}
 }

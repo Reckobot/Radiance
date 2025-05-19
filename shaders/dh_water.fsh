@@ -26,7 +26,7 @@ void main() {
 	}
 
 	color = texture(gtexture, texcoord) * glcolor;
-	color.rgb *= 0.85;
+	color.rgb *= 0.875;
 	lightBuffer = vec4(lmcoord, 0.0, 1.0);
 	if (color.a < alphaTestRef) {
 		discard;

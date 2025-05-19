@@ -1,5 +1,4 @@
 #version 330 compatibility
-#extension GL_ARB_shader_storage_buffer_object : enable
 #include "/lib/common.glsl"
 
 uniform sampler2D colortex0;
@@ -31,8 +30,8 @@ void main() {
 	int count = 1;
 	int radius = 4;
 	for(int x = -radius; x <= radius; x++) {
-			float sample = texture(colortex5, texcoord+vec2(x/viewWidth, 0.0)).r;
-			godray += sample;
+			float sampl = texture(colortex5, texcoord+vec2(x/viewWidth, 0.0)).r;
+			godray += sampl;
 			count++;
 	}
 	godray /= count;
