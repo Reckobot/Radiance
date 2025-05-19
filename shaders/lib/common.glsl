@@ -19,7 +19,6 @@
 
 const int shadowMapResolution = SHADOW_RESOLUTION;
 const int shadowDistance = SHADOW_DISTANCE;
-const float sunPathRotation = 45.0;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelView;

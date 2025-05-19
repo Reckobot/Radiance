@@ -79,9 +79,8 @@ void main() {
 	time = clamp(time, 0.0, 1.0);
 
 	if(depth != depth1) {
-		float shading = dot(normal, worldLightVector);
-		shading = clamp((shading+1), 0.0, 1.0);
-		shading *= dot(normal, worldLightVector)*8;
+		float shading = clamp(dot(normal, worldLightVector), 0.0, 1.0);
+		shading = pow(shading*1.25, 8.0);
 
 		if((shading > 0)&&(depth != texture(dhDepthTex0, texcoord).r)) {
 			shading *= shadow;
