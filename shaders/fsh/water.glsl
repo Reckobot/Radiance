@@ -47,7 +47,7 @@ void main() {
 	vec3 dhNDCPos = vec3(screenTexCoord.xy, dhdepth) * 2.0 - 1.0;
 	vec3 dhviewPos = projectAndDivide(dhProjectionInverse, dhNDCPos);
 
-	if(((length(dhviewPos) < length(viewPos))&&(depth >= 1.0))&&(isEyeInWater != 1)) {
+	if(((length(dhviewPos) < length(viewPos))&&(depth >= 1.0))&&(isEyeInWater != 1)&&(texture(dhDepthTex0, screenTexCoord).r != texture(dhDepthTex1, screenTexCoord).r)) {
 		discard;
 	}
 
