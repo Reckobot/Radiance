@@ -80,7 +80,9 @@ void main() {
 
 	if(depth != depth1) {
 		float shading = clamp(dot(normal, worldLightVector), 0.0, 1.0);
-		shading *= shadow;
+		if(depth == texture(depthtex0, texcoord).r) {
+			shading *= shadow;
+		}
 
 		vec3 sunLight = vec3(1.0,0.9,0.75)*1.25;
 		vec3 moonLight = vec3(0.5,0.75,1.0)*0.75;
