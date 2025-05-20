@@ -44,10 +44,7 @@ void main() {
 	vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	vec3 worldPos = feetPlayerPos+cameraPosition;
 
-	bool pixelate = false;
-	if(dot(normal, vec3(ivec3(normal))) > 0.9) {
-		pixelate = true;
-	}
+	bool pixelate = true;
 	if(texture(colortex8, texcoord).rgb != vec3(0.0)) {
 		pixelate = false;
 	}
@@ -79,24 +76,27 @@ void main() {
 	time = clamp(time, 0.0, 1.0);
 
 	if(depth != depth1) {
-		float shading = clamp(dot(normal, worldLightVector), 0.0, 1.0);
+		float shading = clamp(dot(normal, worldLightVector)*4.0, 0.0, 1.0);
+
 		if(depth == texture(depthtex0, texcoord).r) {
 			shading *= shadow;
 		}
 
+		shading = clamp(shading+clamp((clamp(time-0.5, 0.0, 1.0)*8), 0.0, 0.5), 0.0, 1.0);
+
 		vec3 sunLight = vec3(1.0,0.9,0.75)*1.25;
 		vec3 moonLight = vec3(0.5,0.75,1.0)*0.75;
-		vec3 ambientLight = vec3(0.5,0.75,1.0) * ambient * 2.0;
+		vec3 ambientLight = vec3(0.5,0.75,1.0) * ambient * 1.75;
 
-		vec3 lightMix = mix(moonLight, sunLight, time);
+		vec3 lightMix = mix(moonLight, sunLight, clamp(time*8, 0.0, 1.0));
 
-		vec3 sunLighting = mix(ambientLight, lightMix, clamp(shading+(time/4), 0.0, 1.0));
+		vec3 sunLighting = mix(ambientLight, lightMix, clamp(shading, 0.25, 1.0));
 
 		sunLighting *= clamp(light.g, 0.0, 1.0);
 		sunLighting *= 1-(rainStrength/1.25);
 
 		if(!isDayTime) {
-			sunLighting *= clamp(time, 0.25, 1.0);
+			sunLighting *= clamp(clamp(time*8, 0.0, 1.0), 0.25, 1.0);
 		}
 
 		vec3 blockLighting = vec3(1.25, 1.125, 0.75)*light.r*1.25;

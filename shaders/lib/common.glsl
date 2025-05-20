@@ -20,6 +20,9 @@
 const int shadowMapResolution = SHADOW_RESOLUTION;
 const int shadowDistance = SHADOW_DISTANCE;
 
+#define SUN_ROTATION 45.0 //[-90 -75 -60 -45 -30 -15 0 15 30 45 60 75 90]
+const float sunPathRotation = SUN_ROTATION;
+
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
@@ -71,10 +74,7 @@ vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, 
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	if(!isGodRays) {
         float normalOffet = 0.075;
-        if(notBlock) {
-            normalOffet *= 3;
-        }
-        feetPlayerPos += ((normal-0.5)/0.5)*normalOffet;
+        feetPlayerPos += ((normal))*normalOffet;
     }
     #ifdef PIXELATE_SHADOWS
         if((pixelate)&&(depth != texture(dhDepthTex0, texcoord).r)) {
