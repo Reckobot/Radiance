@@ -73,7 +73,7 @@ void main() {
 	if(depth < 1) {
 		float shading = clamp(dot(normal, worldLightVector)*4.0, 0.0, 1.0);
 
-		if(depth == texture(depthtex0, texcoord).r) {
+		if(depth == texture(depthtex0, texcoord).r && texture(colortex2, texcoord).r != 1.0) {
 			shading *= shadow;
 		}
 
