@@ -75,7 +75,13 @@ void main() {
 	time *= 3.0;
 	time = clamp(time, 0.0, 1.0);
 
-	if(depth != depth1) {
+	bool doShade = (depth != depth1);
+
+	if(texture(colortex3, texcoord).rgb == vec3(0.0)) {
+		doShade = false;
+	}
+
+	if(doShade) {
 		float shading = clamp(dot(normal, worldLightVector)*4.0, 0.0, 1.0);
 
 		if(depth == texture(depthtex0, texcoord).r && texture(colortex2, texcoord).r != 1.0) {
