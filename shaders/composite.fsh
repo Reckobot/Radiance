@@ -96,6 +96,10 @@ void main() {
 
 		vec3 lightMix = mix(moonLight, sunLight, clamp(time*8, 0.0, 1.0));
 
+		if (texture(colortex2, texcoord).rgb == vec3(1.0)) {
+			shading = 1.0;
+		}
+
 		vec3 sunLighting = mix(ambientLight, lightMix, clamp(shading, 0.25, 1.0));
 
 		sunLighting *= clamp(light.g, 0.0, 1.0);

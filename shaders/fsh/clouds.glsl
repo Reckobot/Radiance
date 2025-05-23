@@ -34,7 +34,8 @@ void main() {
 	vec3 lightVector = normalize(shadowLightPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 
-	normalBuffer = vec4(1.0);
+	vec3 finalNormal = normal * 0.5 + 0.5;
+	normalBuffer = vec4(finalNormal, 1.0);
 	cloudBuffer = vec4(1.0);
 
 	#ifdef DISTANT_HORIZONS
