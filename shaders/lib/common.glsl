@@ -75,7 +75,7 @@ vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, 
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	if(!isGodRays) {
         float normalOffet = 0.1;
-        feetPlayerPos += ((normal))*normalOffet;
+        feetPlayerPos += ((normal - 0.5) * 2.0)*normalOffet;
     }
     #ifdef PIXELATE_SHADOWS
         if((pixelate)&&(depth != texture(dhDepthTex0, texcoord).r)) {
