@@ -15,7 +15,12 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	color = texture(colortex0, texcoord);
-	vec3 godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.75);
+	vec3 godrayColor;
+	#ifdef WARM_COLORS
+		godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.75);
+	#else
+		godrayColor = getLuminance(skyColor)*(vec3(1.0)*1.75);
+	#endif
 	if(isEyeInWater != 0) {
 		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}

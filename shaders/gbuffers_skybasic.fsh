@@ -12,7 +12,11 @@ float fogify(float x, float w) {
 
 vec3 calcSkyColor(vec3 pos) {
 	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(mix(pow(skyColor, vec3(1.125))*0.5, fogColor*vec3(1.2,0.9,0.65)*1.25, fogify(max(upDot, 0.0), 0.35)-0.15), vec3(getLuminance(skyColor)), rainStrength);
+	#ifdef WARM_COLORS
+		return mix(mix(pow(skyColor, vec3(1.125))*0.5, fogColor*vec3(1.2,0.9,0.65)*1.25, fogify(max(upDot, 0.0), 0.35)-0.15), vec3(getLuminance(skyColor)), rainStrength);
+	#else
+		return mix(mix(pow(skyColor, vec3(1.125))*0.5, fogColor*vec3(1.0)*1.25, fogify(max(upDot, 0.0), 0.35)-0.15), vec3(getLuminance(skyColor)), rainStrength);
+	#endif
 }
 
 vec3 screenToView(vec3 screenPos) {

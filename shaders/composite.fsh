@@ -9,6 +9,7 @@ uniform sampler2D colortex8;
 uniform sampler2D colortex9;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+uniform sampler2D depthtex2;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowcolor1;
 
@@ -85,12 +86,19 @@ void main() {
 		float shading = clamp(dot(normal, worldLightVector)*4.0, 0.0, 1.0);
 
 		if(depth == texture(depthtex0, texcoord).r && texture(colortex2, texcoord).r != 1.0) {
-			shading *= shadow;
+			if(texture(depthtex1, texcoord).r == texture(depthtex2, texcoord).r) {
+				shading *= shadow;
+			}
 		}
 
 		shading = clamp(shading+clamp((clamp(time-0.5, 0.0, 1.0)*8), 0.0, 0.5), 0.0, 1.0);
 
-		vec3 sunLight = vec3(1.0,0.9,0.75)*1.25;
+		vec3 sunLight;
+		#ifdef WARM_COLORS
+			sunLight = vec3(1.0,0.95,0.85)*1.125;
+		#else
+			sunLight = vec3(1.125);
+		#endif
 		vec3 moonLight = vec3(0.5,0.75,1.0)*0.75;
 		vec3 ambientLight = vec3(0.5,0.75,1.0) * ambient * 1.75;
 
