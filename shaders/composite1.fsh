@@ -103,8 +103,8 @@ void main() {
 
 		dist *= 1+rainStrength;
 
-		float density = 5;
-		fogFactor = exp(-density * (0.85 - dist));
+		float density = 4;
+		fogFactor = exp(-density * (1.0 - dist));
 	#else
 		if(isEyeInWater != 1) {
 			dist = length(viewPos) / dhRenderDistance;
