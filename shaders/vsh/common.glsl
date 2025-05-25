@@ -17,7 +17,8 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);
-	glcolor = gl_Color;
+	glcolor = vec4(gl_Color.rgb, 1.0);
+	glcolor.rgb *= gl_Color.a;
 	glcolor.rgb = mix(glcolor.rgb, glcolor.rgb*entityColor.rgb, entityColor.a);
 	normal = gl_NormalMatrix * gl_Normal;
 	normal = mat3(gbufferModelViewInverse) * normal;

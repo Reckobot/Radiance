@@ -1,7 +1,7 @@
 option.RADIANCE = Radiance
 option.RADIANCE.comment = Made by Recko! If you want to contact him, his username on discord is "reckobot".
 
-value.RADIANCE.0 = v3.5
+value.RADIANCE.0 = v3.6
 
 option.AMBIENT = Ambient
 option.GODRAYS = Godrays
@@ -24,3 +24,5 @@ option.CONTRAST = Contrast
 
 option.ALPHA_FOLIAGE = Alpha foliage
 option.WARM_COLORS = Legacy radiance
+
+profile.LegacyConsole = Legacy console
