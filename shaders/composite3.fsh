@@ -47,7 +47,9 @@ void main() {
 	godray /= count;
 
 	#ifdef FOG
-		color.rgb = mix(color.rgb, fog.rgb, fog.a);
+		if(fog.r != fog.g && fog.g != fog.b) {
+			color.rgb = mix(color.rgb, fog.rgb, fog.a);
+		}
 	#endif
 	color.rgb = mix(color.rgb, godrayColor, godray);
 

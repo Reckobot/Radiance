@@ -15,7 +15,7 @@ vec3 calcSkyColor(vec3 pos) {
 	#ifdef WARM_COLORS
 		return mix(mix(pow(skyColor, vec3(1.125))*0.5, fogColor*vec3(1.2,0.9,0.65)*1.25, fogify(max(upDot, 0.0), 0.35)-0.15), vec3(getLuminance(skyColor)), rainStrength);
 	#else
-		return mix(mix(pow(skyColor, vec3(2.0))*0.5, pow(fogColor*vec3(1.0)*1.25, vec3(0.25)), fogify(max(upDot, 0.0), 0.5)-0.25), vec3(getLuminance(skyColor)), rainStrength);
+		return mix(mix(pow(skyColor, vec3(2.0))*0.5, pow(fogColor*vec3(1.0)*1.25, vec3(0.25))*getLuminance(skyColor.rgb), fogify(max(upDot, 0.0), 0.5)-0.25), vec3(getLuminance(skyColor)), rainStrength);
 	#endif
 }
 
