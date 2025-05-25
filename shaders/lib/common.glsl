@@ -74,7 +74,7 @@ vec3 distortShadowClipPos(vec3 shadowClipPos){
 vec3 viewToShadowScreen(vec3 viewPos, bool pixelate, float depth, float depth1, vec3 normal, bool isGodRays, bool notBlock, vec2 texcoord) {
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 	if(!isGodRays) {
-        float normalOffet = 0.05;
+        float normalOffet = 0.1;
         feetPlayerPos += (normal)*normalOffet;
     }
     #ifdef PIXELATE_SHADOWS
