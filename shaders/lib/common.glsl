@@ -57,6 +57,10 @@ uniform mat4 dhPreviousProjection;
 uniform int dhRenderDistance;
 uniform float dhFarPlane;
 
+const int RGBA16 = 0;
+const int colortex0Format = RGBA16;
+const int colortex1Format = RGBA16;
+
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);
     return homPos.xyz / homPos.w;
