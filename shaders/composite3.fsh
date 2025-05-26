@@ -5,6 +5,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
+uniform sampler2D colortex11;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
@@ -21,7 +22,7 @@ void main() {
 	#else
 		godrayColor = getLuminance(skyColor)*(vec3(1.0)*1.75);
 	#endif
-	if(isEyeInWater != 0) {
+	if(isEyeInWater == 1) {
 		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}
 	float depth = texture(depthtex0, texcoord).r;
@@ -36,6 +37,10 @@ void main() {
 	
 	vec4 fog = texture(colortex6, texcoord);
 
+	if(isEyeInWater == 1.0) {
+		fog.rgb = pow(fog.rgb, vec3(3.0));
+	}
+
 	float godray = 0.0;
 	int count = 1;
 	int radius = 4;
@@ -47,13 +52,11 @@ void main() {
 	godray /= count;
 
 	#ifdef FOG
-		if(fog.r != fog.g && fog.g != fog.b) {
-			color.rgb = mix(color.rgb, fog.rgb, fog.a);
-		}
+		color.rgb = mix(color.rgb, fog.rgb, fog.a);
 	#endif
 	color.rgb = mix(color.rgb, godrayColor, godray);
 
-	if(isEyeInWater != 0 && depth1 >= 1.0) {
+	if(isEyeInWater == 1.0 && depth1 >= 1.0) {
 		color.rgb = mix(color.rgb, mix(texture(colortex7, texcoord).rgb*4, color.rgb, 0.85), getLuminance(texture(colortex7, texcoord).rgb));
 	}
 

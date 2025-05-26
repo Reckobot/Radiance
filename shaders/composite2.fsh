@@ -15,7 +15,7 @@ layout(location = 1) out vec4 godrayBuffer;
 void main() {
 	color = texture(colortex0, texcoord);
 	vec3 godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.75);
-	if(isEyeInWater != 0) {
+	if(isEyeInWater == 1) {
 		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}
 	float depth = texture(depthtex0, texcoord).r;

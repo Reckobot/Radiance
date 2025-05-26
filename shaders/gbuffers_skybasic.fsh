@@ -37,5 +37,7 @@ void main() {
 		color = vec4(calcSkyColor(normalize(pos)), 1.0);
 	}
 
-	skyBuffer = color;
+	vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+	vec4 buffercolor = vec4(calcSkyColor(normalize(pos)), 1.0);
+	skyBuffer = buffercolor;
 }

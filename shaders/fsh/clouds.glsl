@@ -14,12 +14,13 @@ in vec3 normal;
 
 flat in int isGrass;
 
-/* RENDERTARGETS: 0,2,3,4,9 */
+/* RENDERTARGETS: 0,2,3,4,9,10 */
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 cloudBuffer;
 layout(location = 2) out vec4 normalBuffer;
 layout(location = 3) out vec4 lightBuffer;
 layout(location = 4) out vec4 grassBuffer;
+layout(location = 5) out vec4 particleBuffer;
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
@@ -37,6 +38,7 @@ void main() {
 	vec3 finalNormal = normal * 0.5 + 0.5;
 	normalBuffer = vec4(finalNormal, 1.0);
 	cloudBuffer = vec4(1.0);
+	particleBuffer = vec4(vec3(0.0), 1.0);
 
 	#ifdef DISTANT_HORIZONS
 		discard;

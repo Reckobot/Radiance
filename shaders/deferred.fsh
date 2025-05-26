@@ -94,7 +94,7 @@ void main() {
 		#else
 			sunLight = vec3(1.125);
 		#endif
-		vec3 moonLight = vec3(0.5,0.75,1.0)*0.75;
+		vec3 moonLight = vec3(0.5,0.75,1.0)*3.0;
 		vec3 ambientLight = vec3(0.5,0.75,1.0) * ambient * 1.75;
 
 		vec3 lightMix = mix(moonLight, sunLight, clamp(time*8, 0.0, 1.0));
@@ -114,6 +114,6 @@ void main() {
 
 		vec3 blockLighting = vec3(1.25, 1.125, 0.75)*light.r*1.25;
 		
-		color.rgb *= clamp(mix(sunLighting, blockLighting, light.r), vec3(0.1), vec3(1.0));
+		color.rgb *= clamp(mix(sunLighting, blockLighting, light.r), vec3(0.05), vec3(1.0));
 	}
 }

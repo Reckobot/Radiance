@@ -104,6 +104,12 @@ void main() {
 		dist *= 1+rainStrength;
 
 		float density = 4;
+
+		if(isEyeInWater == 1) {
+			dist *= 6;
+			density /= 4;
+		}
+
 		fogFactor = exp(-density * (1.0 - dist));
 	#else
 		if(isEyeInWater != 1) {
@@ -123,6 +129,6 @@ void main() {
 	}
 
 	if(texture(depthtex0, texcoord).r >= 1.0 && isEyeInWater == 1) {
-		color.rgb = pow(skyColor, vec3(1.5))*0.75;
+		color.rgb = pow(skyColor, vec3(3.0))*0.25;
 	}
 }
