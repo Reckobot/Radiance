@@ -114,6 +114,6 @@ void main() {
 
 		vec3 blockLighting = vec3(1.25, 1.125, 0.75)*light.r*1.25;
 		
-		color.rgb *= mix(sunLighting, blockLighting, light.r);
+		color.rgb *= clamp(mix(sunLighting, blockLighting, light.r), vec3(0.1), vec3(1.0));
 	}
 }
