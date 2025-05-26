@@ -1,7 +1,7 @@
 option.RADIANCE = Radiance
 option.RADIANCE.comment = Made by Recko! If you want to contact him, his username on discord is "reckobot".
 
-value.RADIANCE.0 = v4.0
+value.RADIANCE.0 = v4.1
 
 option.AMBIENT = Ambient
 option.GODRAYS = Godrays

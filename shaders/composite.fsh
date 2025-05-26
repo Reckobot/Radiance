@@ -7,6 +7,7 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex8;
 uniform sampler2D colortex9;
+uniform sampler2D colortex10;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
@@ -80,6 +81,10 @@ void main() {
 
 	if(texture(colortex3, texcoord).rgb == vec3(0.0)) {
 		doShade = false;
+	}
+
+	if(texture(colortex10, texcoord).rgb == vec3(1.0)) {
+		doShade = true;
 	}
 
 	if(doShade) {
