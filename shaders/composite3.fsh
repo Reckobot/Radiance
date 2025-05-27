@@ -5,7 +5,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
-uniform sampler2D colortex11;
+uniform sampler2D colortex10;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
@@ -52,7 +52,9 @@ void main() {
 	godray /= count;
 
 	#ifdef FOG
-		color.rgb = mix(color.rgb, fog.rgb, fog.a);
+		if(texture(colortex10, texcoord).rgb == 0.0) {
+			color.rgb = mix(color.rgb, fog.rgb, fog.a);
+		}
 	#endif
 	color.rgb = mix(color.rgb, godrayColor, godray);
 

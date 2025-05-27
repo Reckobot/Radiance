@@ -6,13 +6,12 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex8;
-uniform sampler2D colortex9;
 uniform sampler2D colortex10;
+uniform sampler2D colortex12;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D shadowtex0;
-uniform sampler2D shadowcolor1;
 
 in vec2 texcoord;
 
@@ -20,6 +19,10 @@ in vec2 texcoord;
 layout(location = 0) out vec4 color;
 
 void main() {
+	if(texture(colortex12, texcoord).rgb == vec3(1.0)) {
+		discard;
+	}
+
 	float ambient = AMBIENT;
 
 	color = texture(colortex0, texcoord);
