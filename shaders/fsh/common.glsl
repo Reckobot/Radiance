@@ -1,10 +1,7 @@
 #version 330 compatibility
 #include "/lib/common.glsl"
 
-uniform sampler2D lightmap;
 uniform sampler2D gtexture;
-
-uniform float alphaTestRef = 0.1;
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -12,6 +9,7 @@ in vec4 glcolor;
 in vec3 normal;
 
 flat in int isGrass;
+flat in int isShadow;
 
 /* RENDERTARGETS: 0,3,4,2,8,9,10 */
 layout(location = 0) out vec4 color;
@@ -23,19 +21,26 @@ layout(location = 5) out vec4 grassBuffer;
 layout(location = 6) out vec4 particleBuffer;
 
 void main() {
-	color = texture(gtexture, texcoord) * glcolor;
-	lightBuffer = vec4(lmcoord, 0.0, 1.0);
-	if (color.a < alphaTestRef) {
-		discard;
+	if(!bool(isShadow)) {
+		//initialize
+		color = texture(gtexture, texcoord) * glcolor;
+		if (color.a < 0.1) {
+			discard;
+		}
+
+		//buffer writing
+		vec3 finalNormal = normal * 0.5 + 0.5;
+		lightBuffer = vec4(lmcoord, 0.0, 1.0);
+		normalBuffer = vec4(finalNormal, 1.0);
+		cloudBuffer = vec4(vec3(0.0), 1.0);
+		nonBlockBuffer = vec4(1.0);
+		grassBuffer = vec4(vec3(isGrass), 1.0);
+		particleBuffer = vec4(vec3(0.0), 1.0);
+	} else {
+		color = texture(gtexture, texcoord) * glcolor;
+		if (color.a < 0.1) {
+			discard;
+		}
+		color.a *= 0.5;
 	}
-	vec3 finalNormal = normal * 0.5 + 0.5;
-
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-
-	normalBuffer = vec4(finalNormal, 1.0);
-	cloudBuffer = vec4(vec3(0.0), 1.0);
-	nonBlockBuffer = vec4(1.0);
-	grassBuffer = vec4(vec3(isGrass), 1.0);
-	particleBuffer = vec4(vec3(0.0), 1.0);
 }

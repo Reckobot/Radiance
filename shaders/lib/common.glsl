@@ -1,28 +1,33 @@
+//CONFIGURATION////////////
+
 #define RADIANCE 0 //[0]
-#define AMBIENT 0.25 //[0.0 0.1 0.2 0.25 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
+#define AMBIENT_OCCLUSION
+#define AMBIENT_OCCLUSION_STRENGTH 0.5 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define AMBIENT 0.25 //[0.0 0.1 0.2 0.25 0.3 0.375 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0]
+#define MINIMUM_LIGHT 0.1 //[0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5]
 #define SHADOW_PIXELATION 16 //[1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192]
 #define GODRAYS
-#define GODRAY_TRANSITION 5.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
-#define GODRAY_INTENSITY 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
-#define GODRAY_MINIMUM 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
+#define GODRAY_TRANSITION 4.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+#define GODRAY_INTENSITY 0.75 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.75 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
+#define GODRAY_MINIMUM 1.25 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.25 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0]
 #define FOG
 #define GAMMA 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define BRIGHTNESS 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define SATURATION 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define CONTRAST 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define PIXELATE_SHADOWS
+#define SHADOWS
+#define SHADING
 //#define WARM_COLORS
-
 //#define ALPHA_FOLIAGE
-
 #define SHADOW_RESOLUTION 2048 //[128 256 512 1024 2048 4096 8192 16384]
 #define SHADOW_DISTANCE 100 //[100 200 300 400 500 600 700 800 900 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000]
-
 const int shadowMapResolution = SHADOW_RESOLUTION;
 const int shadowDistance = SHADOW_DISTANCE;
-
 #define SUN_ROTATION 45.0 //[-90 -75 -60 -45 -30 -15 0 15 30 45 60 75 90]
 const float sunPathRotation = SUN_ROTATION;
+
+//UNIFORMS////////////////
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelView;
@@ -57,9 +62,13 @@ uniform mat4 dhPreviousProjection;
 uniform int dhRenderDistance;
 uniform float dhFarPlane;
 
+//COLOR DEPTH/////////////
 const int RGBA16 = 0;
 const int colortex0Format = RGBA16;
 const int colortex1Format = RGBA16;
+
+
+//FUNCTIONS///////////////
 
 vec3 projectAndDivide(mat4 projectionMatrix, vec3 position){
     vec4 homPos = projectionMatrix * vec4(position, 1.0);

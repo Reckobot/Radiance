@@ -13,19 +13,20 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 godrayBuffer;
 
 void main() {
+	//set color
 	color = texture(colortex0, texcoord);
-	vec3 godrayColor = getLuminance(skyColor)*(vec3(1.25,1.125,1.0)*1.75);
-	if(isEyeInWater == 1) {
-		godrayColor *= vec3(0.25, 0.5, 1.0);
-	}
+
+	//initialize depth
 	float depth = texture(depthtex0, texcoord).r;
 
+	//initialize depth for distant horizons
 	if(depth >= 1.0) {
 		#ifdef DISTANT_HORIZONS
 			depth = texture(dhDepthTex0, texcoord).r;
 		#endif
 	}
 
+	//blur the godray
 	float godray = 0.0;
 	int count = 1;
 	int radius = 4;
@@ -36,5 +37,6 @@ void main() {
 	}
 	godray /= count;
 
+	//write to buffer
 	godrayBuffer = vec4(godray);
 }

@@ -19,6 +19,11 @@ vec3 calcSkyColor(vec3 pos) {
 	#endif
 }
 
+vec3 vanillaCalcSkyColor(vec3 pos) {
+	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
+	return mix(skyColor, fogColor, fogify(max(upDot, 0.0), 0.025)+0.25);
+}
+
 vec3 screenToView(vec3 screenPos) {
 	vec4 ndcPos = vec4(screenPos, 1.0) * 2.0 - 1.0;
 	vec4 tmp = gbufferProjectionInverse * ndcPos;
@@ -30,14 +35,27 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 skyBuffer;
 
 void main() {
-	if (renderStage == MC_RENDER_STAGE_STARS) {
-		color = glcolor;
-	} else {
-		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-		color = vec4(calcSkyColor(normalize(pos)), 1.0);
-	}
+	#ifdef SHADING
+		if (renderStage == MC_RENDER_STAGE_STARS) {
+			color = glcolor;
+		} else {
+			vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+			color = vec4(calcSkyColor(normalize(pos)), 1.0);
+		}
 
-	vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-	vec4 buffercolor = vec4(calcSkyColor(normalize(pos)), 1.0);
-	skyBuffer = buffercolor;
+		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+		vec4 buffercolor = vec4(calcSkyColor(normalize(pos)), 1.0);
+		skyBuffer = buffercolor;
+	#else
+		if (renderStage == MC_RENDER_STAGE_STARS) {
+			color = glcolor;
+		} else {
+			vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+			color = vec4(vanillaCalcSkyColor(normalize(pos)), 1.0);
+		}
+
+		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
+		vec4 buffercolor = vec4(vanillaCalcSkyColor(normalize(pos)), 1.0);
+		skyBuffer = buffercolor;
+	#endif
 }

@@ -1,10 +1,7 @@
 #version 330 compatibility
 #include "/lib/common.glsl"
 
-uniform sampler2D lightmap;
 uniform sampler2D gtexture;
-
-uniform float alphaTestRef = 0.1;
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -23,16 +20,15 @@ layout(location = 5) out vec4 grassBuffer;
 layout(location = 6) out vec4 particleBuffer;
 
 void main() {
+	//initialize
 	color = texture(gtexture, texcoord) * glcolor;
-	lightBuffer = vec4(lmcoord, 0.0, 1.0);
-	if (color.a < alphaTestRef) {
+	if (color.a < 0.1) {
 		discard;
 	}
+	
+	//buffer writing
 	vec3 finalNormal = normal * 0.5 + 0.5;
-
-	vec3 lightVector = normalize(shadowLightPosition);
-	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
-
+	lightBuffer = vec4(lmcoord, 0.0, 1.0);
 	normalBuffer = vec4(finalNormal, 1.0);
 	cloudBuffer = vec4(vec3(0.0), 1.0);
 	nonBlockBuffer = vec4(1.0);
