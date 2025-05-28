@@ -22,7 +22,7 @@ void main() {
 	#ifndef SHADING
 		lmcoord = pow(lmcoord, vec2(2.1));
 	#endif
-	glcolor = vec4(gl_Color.rgb, 1.0);
+	glcolor = vec4(gl_Color.rgb, gl_Color.a);
 	#ifdef AMBIENT_OCCLUSION
 		glcolor.rgb *= clamp(pow(pow(gl_Color.a, 1.1), AMBIENT_OCCLUSION_STRENGTH), 0.0, 1.0);
 	#endif
