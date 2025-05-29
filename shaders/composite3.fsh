@@ -71,7 +71,7 @@ void main() {
 
 	//apply fog
 	#ifdef FOG
-		if(texture(colortex10, texcoord).rgb == 0.0) {
+		if(texture(colortex10, texcoord).rgb == vec3(0.0)) {
 			color.rgb = mix(color.rgb, fog.rgb, fog.a);
 		}
 	#endif
