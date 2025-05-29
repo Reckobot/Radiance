@@ -63,6 +63,7 @@ void main() {
 
 	//daytime vs nighttime stuff
 	vec3 lightVector = normalize(shadowLightPosition);
+	vec3 sunVector = normalize(sunPosition);
 	vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector;
 	bool isDayTime = false;
 	if(shadowAngle == sunAngle) {
@@ -94,6 +95,8 @@ void main() {
 			if(depth == texture(depthtex0, texcoord).r && texture(colortex2, texcoord).r != 1.0) {
 				if(texture(depthtex1, texcoord).r == texture(depthtex2, texcoord).r) {
 					shading *= shadow;
+				} else {
+					shading *= clamp(time*2, 0.0, 1.0);
 				}
 			}
 			#endif
@@ -108,6 +111,7 @@ void main() {
 			#else
 				sunLight = vec3(1.125);
 			#endif
+			sunLight.r += clamp((1-time)/8, 0.0, 0.25)*int(isDayTime);
 			vec3 moonLight = vec3(0.5,0.75,1.0)*3.0;
 			vec3 ambientLight = vec3(0.5,0.75,1.0) * ambient * 1.75;
 
@@ -126,7 +130,7 @@ void main() {
 
 			//darkens the lighting for nighttime
 			if(!isDayTime) {
-				sunLighting *= clamp(clamp(time*8, 0.0, 1.0), 0.25, 1.0);
+				sunLighting *= clamp(clamp(time*8, 0.0, 1.0), 0.1, 0.5);
 			}
 
 			//ah it's done, apply blocklights and boom
@@ -136,7 +140,7 @@ void main() {
 	#else
 		if(doShade && (texture(colortex2, texcoord).rgb != vec3(1.0))) {
 			vec3 blockLighting = vec3(1.25, 1.125, 0.75);
-			color.rgb *= mix(vec3(light.g), blockLighting, light.r);
+			color.rgb *= mix(vec3(light.g*clamp(dot(lightVector, sunVector), 0.2, 1.0))*clamp(vec3(0.375,0.625,1.0)*2*(-dot(lightVector, sunVector)), 1.0, 2.0), blockLighting, light.r);
 		} else if(texture(colortex2, texcoord).rgb == vec3(1.0)) {
 			color.rgb *= 1.2;
 		}

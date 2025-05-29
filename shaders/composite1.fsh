@@ -100,7 +100,7 @@ void main() {
 		dist = length(viewPos) / far;
 
 		if(texture(colortex2, texcoord).rgb == vec3(1.0)) {
-			dist /= 3;
+			dist /= 2;
 		}
 
 		dist *= 1+rainStrength;

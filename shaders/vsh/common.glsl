@@ -7,6 +7,7 @@ uniform int entityId;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
+out vec4 OGglcolor;
 out vec3 normal;
 in vec2 mc_Entity;
 
@@ -19,10 +20,8 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);
-	#ifndef SHADING
-		lmcoord = pow(lmcoord, vec2(2.1));
-	#endif
 	glcolor = vec4(gl_Color.rgb, gl_Color.a);
+	OGglcolor = glcolor;
 	#ifdef AMBIENT_OCCLUSION
 		glcolor.rgb *= clamp(pow(pow(gl_Color.a, 1.1), AMBIENT_OCCLUSION_STRENGTH), 0.0, 1.0);
 	#endif

@@ -29,6 +29,17 @@ void main() {
 	#else
 		godrayColor = getLuminance(skyColor)*(vec3(1.0)*1.75);
 	#endif
+	bool isDayTime = false;
+	if(shadowAngle == sunAngle) {
+		isDayTime = true;
+	}
+	float time;
+	if(isDayTime) {
+		time = 1-(abs(shadowAngle - 0.25)*4);
+	} else {
+		time = 1-(abs(shadowAngle - 0.75)*4);
+	}
+	godrayColor.r += clamp((1-time)/2, 0.0, 0.5)*int(isDayTime);
 	if(isEyeInWater == 1) {
 		godrayColor *= vec3(0.25, 0.5, 1.0);
 	}

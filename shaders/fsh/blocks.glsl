@@ -6,6 +6,7 @@ uniform sampler2D gtexture;
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
+in vec4 OGglcolor;
 in vec3 normal;
 
 flat in int isGrass;
@@ -38,7 +39,7 @@ void main() {
 
 	//alpha foliage toggle
 	#ifdef ALPHA_FOLIAGE
-		if(bool(isFoliage) && ((glcolor.r + glcolor.g + glcolor.b)/3 < 0.9)) {
+		if(bool(isFoliage) && ((OGglcolor.r + OGglcolor.g + OGglcolor.b)/3 < 0.9)) {
 			color.rgb = (getLuminance(color.rgb)*2.25) * vec3( 0.4431, 0.6941, 0.2784);
 		}
 	#endif
