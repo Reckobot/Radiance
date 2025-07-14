@@ -21,6 +21,7 @@ layout(location = 5) out vec4 particleBuffer;
 void main() {
 	//initialize
 	color = texture(gtexture, texcoord) * glcolor;
+	color.rgb *= 1.125;
 	
 	//rain
 	color.rgb *= clamp(1-rainStrength, 0.5, 1.0);
@@ -29,7 +30,7 @@ void main() {
 	if (color.a < 0.1) {
 		discard;
 	}
-	color.a = 0.625;
+	color.a = 1.0;
 
 	//buffer writing
 	vec3 finalNormal = normal * 0.5 + 0.5;

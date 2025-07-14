@@ -1,7 +1,7 @@
 option.RADIANCE = Radiance
-option.RADIANCE.comment = Made by Recko! If you want to contact him, his username on discord is "reckobot".
+option.RADIANCE.comment = Made by Recko! If you want to contact him, his username on discord is "reckodev".
 
-value.RADIANCE.0 = v6.0
+value.RADIANCE.0 = v7.0
 
 option.AMBIENT = Ambient
 option.GODRAYS = Godrays
@@ -31,6 +31,7 @@ option.SHADING = Shading
 option.MINIMUM_LIGHT = Minimum light
 option.AMBIENT_OCCLUSION = Ambient occlusion
 option.AMBIENT_OCCLUSION_STRENGTH = AO strength
+option.LOWERED_TEXTURES = Blurry mipmaps
 
 value.GAMMA.0.75 = Legacy console
 

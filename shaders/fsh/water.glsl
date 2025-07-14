@@ -25,9 +25,12 @@ layout(location = 6) out vec4 particleBuffer;
 void main() {
 	//initialize
 	color = texture(gtexture, texcoord) * glcolor;
+	color.rgb = pow(color.rgb, vec3(0.5));
+	color.rgb *= 0.75;
 	if (color.a < alphaTestRef) {
 		discard;
 	}
+	color.rgb *= getLuminance(texture(gtexture, texcoord).rgb);
 
 	//buffer writing
 	vec3 finalNormal = normal * 0.5 + 0.5;

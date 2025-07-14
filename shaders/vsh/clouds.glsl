@@ -7,7 +7,9 @@ out vec4 glcolor;
 out vec3 normal;
 
 void main() {
-	gl_Position = ftransform();
+	vec4 vertex = gl_Vertex;
+	vertex.y *= 2;
+	gl_Position = gl_ModelViewProjectionMatrix * vertex;
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);

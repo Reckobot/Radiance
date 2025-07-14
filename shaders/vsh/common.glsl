@@ -10,10 +10,13 @@ out vec4 glcolor;
 out vec4 OGglcolor;
 out vec3 normal;
 in vec2 mc_Entity;
+in vec4 at_midBlock;
 
 flat out int isGrass;
 flat out int isFoliage;
 flat out int isShadow;
+out float dist;
+out float fakeSSS;
 
 void main() {
 	gl_Position = ftransform();
@@ -46,4 +49,10 @@ void main() {
 	} else {
 		isShadow = 0;
 	}
+
+	dist = clamp(length(gl_Position.xyz)/32, 0.0, 2.0);
+
+	vec3 pos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
+	vec3 centerPosition = pos + at_midBlock.xyz / 64.0;
+	fakeSSS = clamp(1+(pos - centerPosition).y, 0.75, 1.25);
 }

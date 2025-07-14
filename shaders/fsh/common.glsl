@@ -10,6 +10,7 @@ in vec3 normal;
 
 flat in int isGrass;
 flat in int isShadow;
+in float dist;
 
 /* RENDERTARGETS: 0,3,4,2,8,9,10 */
 layout(location = 0) out vec4 color;
@@ -21,9 +22,14 @@ layout(location = 5) out vec4 grassBuffer;
 layout(location = 6) out vec4 particleBuffer;
 
 void main() {
-	if(!bool(isShadow)) {
-		//initialize
+	//initialize
+	#ifndef LOWERED_TEXTURES
 		color = texture(gtexture, texcoord) * glcolor;
+	#else
+		color = textureLod(gtexture, texcoord, dist) * glcolor;
+	#endif
+
+	if(!bool(isShadow)) {
 		if (color.a < 0.1) {
 			discard;
 		}
@@ -37,7 +43,6 @@ void main() {
 		grassBuffer = vec4(vec3(isGrass), 1.0);
 		particleBuffer = vec4(vec3(0.0), 1.0);
 	} else {
-		color = texture(gtexture, texcoord) * glcolor;
 		if (color.a < 0.1) {
 			discard;
 		}

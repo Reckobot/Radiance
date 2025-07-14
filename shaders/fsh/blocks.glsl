@@ -11,6 +11,8 @@ in vec3 normal;
 
 flat in int isGrass;
 flat in int isFoliage;
+in float dist;
+in float fakeSSS;
 
 /* RENDERTARGETS: 0,3,4,2,8,9,10 */
 layout(location = 0) out vec4 color;
@@ -23,7 +25,11 @@ layout(location = 6) out vec4 particleBuffer;
 
 void main() {
 	//initialize
-	color = texture(gtexture, texcoord) * glcolor;
+	#ifndef LOWERED_TEXTURES
+		color = texture(gtexture, texcoord) * glcolor;
+	#else
+		color = textureLod(gtexture, texcoord, dist) * glcolor;
+	#endif
 	if (color.a < 0.1) {
 		discard;
 	}
@@ -36,6 +42,10 @@ void main() {
 	nonBlockBuffer = vec4(vec3(0.0), 1.0);
 	grassBuffer = vec4(vec3(isGrass), 1.0);
 	particleBuffer = vec4(vec3(0.0), 1.0);
+
+	if(bool(isGrass)) {
+		color.rgb *= fakeSSS;
+	}
 
 	//alpha foliage toggle
 	#ifdef ALPHA_FOLIAGE
