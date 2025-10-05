@@ -12,6 +12,7 @@ void main() {
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);
 	glcolor.rgb = gl_Color.rgb;
+	glcolor.a = gl_Color.a;
 	#ifdef AMBIENT_OCCLUSION
 		glcolor.rgb *= clamp(pow(pow(gl_Color.a, 1.1), AMBIENT_OCCLUSION_STRENGTH), 0.0, 1.0);
 	#endif
